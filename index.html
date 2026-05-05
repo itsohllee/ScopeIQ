@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VendorLens — AI-Powered Procurement Analysis</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f4f4f2;
+    --surface: #ffffff;
+    --border: #e2e2de;
+    --text: #1a1a1a;
+    --text-muted: #6b6b6b;
+    --teal: #00a67e;
+    --teal-light: #e6f7f3;
+    --orange: #e8820c;
+    --orange-light: #fef3e6;
+    --red: #d63b3b;
+    --red-light: #fdeaea;
+    --yellow: #c9930a;
+    --yellow-light: #fef8e6;
+    --blue: #2563eb;
+    --blue-light: #eff4ff;
+    --navy: #0f1923;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--navy);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+  }
+  .logo-tag {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #7dd3b8;
+  }
+  .logo-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .api-key-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  .api-key-btn:hover { background: rgba(255,255,255,0.2); }
+  .api-status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #ef4444;
+  }
+  .api-status-dot.active { background: #22c55e; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── UPLOAD PAGE ── */
+  .upload-hero {
+    padding: 48px 32px 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .upload-hero .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  .upload-hero h1 {
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .upload-hero p {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  /* Upload card */
+  .upload-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto 32px;
+  }
+  .upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .upload-col-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .upload-col-header .col-badge {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--teal);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .upload-col-header .col-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .upload-col { }
+
+  .field-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .field-label .required { color: var(--red); }
+
+  .drop-zone {
+    border: 1.5px dashed #c8c8c4;
+    border-radius: 8px;
+    padding: 20px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: #fafaf9;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--teal);
+    background: var(--teal-light);
+  }
+  .drop-zone.has-file {
+    border-color: var(--teal);
+    background: var(--teal-light);
+    border-style: solid;
+  }
+  .drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .drop-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+    color: #aaa;
+  }
+  .drop-zone.has-file .drop-icon { color: var(--teal); }
+  .drop-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+  .drop-sub {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 2px;
+  }
+  .file-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--teal);
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .tcs-input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-family: inherit;
+    background: #fafaf9;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    position: relative;
+  }
+  .tcs-input:hover { border-color: var(--teal); }
+  .tcs-input.has-file { color: var(--text); border-color: var(--teal); }
+  .tcs-input input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .notes-input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-family: inherit;
+    background: #fafaf9;
+    resize: none;
+    height: 60px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .notes-input:focus { border-color: var(--teal); }
+
+  .upload-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .file-count { font-size: 13px; color: var(--text-muted); }
+
+  .btn-run {
+    background: var(--navy);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;
+  }
+  .btn-run:hover:not(:disabled) { background: #1e3048; }
+  .btn-run:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-run.loading { background: var(--teal); }
+
+  /* Recent analyses */
+  .section-wrap {
+    max-width: 1200px;
+    margin: 0 auto 48px;
+    padding: 0 32px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: #fafaf9;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #fafaf9; }
+  tbody td {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+  .td-num { color: var(--text-muted); font-size: 12px; }
+  .td-scope {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+  .td-scope-icon { font-size: 16px; }
+  .badge-complete {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--teal-light);
+    color: var(--teal);
+    border: 1px solid #b2e8d9;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* ── RESULTS PAGE ── */
+  .results-header-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .btn-back {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text);
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .btn-back:hover { border-color: var(--text); background: var(--bg); }
+
+  .results-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 32px 48px;
+  }
+
+  .result-header-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .result-scope-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .result-scope-icon { font-size: 20px; color: var(--teal); }
+  .result-scope-name { font-weight: 600; font-size: 15px; }
+  .result-vendor-count { font-size: 13px; color: var(--text-muted); }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-header h3 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .card-body { padding: 20px; }
+
+  .executive-summary {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  /* Vendor comparison table */
+  .comparison-table-wrap {
+    overflow-x: auto;
+  }
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+  }
+  .comparison-table th {
+    padding: 16px 16px 12px;
+    text-align: left;
+    vertical-align: top;
+    border-right: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
+  }
+  .comparison-table th:last-child { border-right: none; }
+  .comparison-table td {
+    padding: 12px 16px;
+    vertical-align: top;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid #f0f0ee;
+    font-size: 13px;
+  }
+  .comparison-table td:last-child { border-right: none; }
+  .comparison-table tr:last-child td { border-bottom: none; }
+  .comparison-table .scope-col {
+    width: 200px;
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .comparison-table .vendor-col { min-width: 200px; }
+
+  .vendor-th-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .vendor-th-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  .vendor-th-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .badge-lowest {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--teal-light);
+    color: var(--teal);
+    border: 1px solid #b2e8d9;
+    margin-bottom: 6px;
+  }
+  .badge-recommended {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #fff7e6;
+    color: #b45309;
+    border: 1px solid #fcd34d;
+    margin-bottom: 8px;
+  }
+  .recommended-reason {
+    font-size: 12px;
+    color: #92400e;
+    background: #fff7e6;
+    border: 1px solid #fcd34d;
+    border-radius: 6px;
+    padding: 8px 10px;
+    line-height: 1.5;
+    margin-top: 8px;
+  }
+
+  .scope-coverage {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Price cells */
+  .price-cell { }
+  .price-cell .price-amount {
+    font-weight: 600;
+    color: var(--teal);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 3px;
+  }
+  .price-cell .price-notes {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .status-dot.included { background: var(--teal); }
+  .status-dot.partial { background: var(--orange); }
+  .status-dot.excluded { background: var(--red); }
+
+  /* Watch-outs per vendor */
+  .watchouts-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr 1fr 1fr;
+    gap: 0;
+  }
+  .watchouts-label-col {
+    padding: 16px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .watchouts-label-col .wo-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--orange);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .watchouts-vendor-col {
+    padding: 16px;
+    border-right: 1px solid var(--border);
+  }
+  .watchouts-vendor-col:last-child { border-right: none; }
+  .wo-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .wo-num {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    background: var(--orange-light);
+    color: var(--orange);
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* T&Cs risks per vendor */
+  .tcs-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr 1fr 1fr;
+    gap: 0;
+  }
+  .tcs-label-col {
+    padding: 16px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .tcs-label-col .tcs-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tcs-vendor-col {
+    padding: 16px;
+    border-right: 1px solid var(--border);
+  }
+  .tcs-vendor-col:last-child { border-right: none; }
+  .tcs-item {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .tcs-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .tcs-dot.high { background: var(--red); }
+  .tcs-dot.medium { background: var(--orange); }
+  .tcs-dot.low { background: var(--yellow); }
+  .no-tcs { font-size: 12px; color: var(--text-muted); font-style: italic; }
+
+  /* Bottom two-col section */
+  .two-col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .numbered-list { }
+  .num-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .num-badge {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .num-badge.orange { background: var(--orange-light); color: var(--orange); }
+  .num-badge.blue { background: var(--blue-light); color: var(--blue); }
+  .card-header .count-badge {
+    margin-left: auto;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 8px;
+    color: var(--text-muted);
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 28px;
+    max-width: 520px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .modal p { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; line-height: 1.6; }
+  .modal label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .modal input[type="text"], .modal input[type="password"] {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: monospace;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 16px;
+  }
+  .modal input:focus { border-color: var(--teal); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-primary {
+    background: var(--teal);
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: #009570; }
+  .btn-secondary {
+    background: none;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 9px 20px;
+    border-radius: 7px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
+  .steps { background: var(--bg); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; }
+  .steps p { margin-bottom: 0; color: var(--text); font-size: 13px; }
+  .steps ol { padding-left: 18px; }
+  .steps li { margin-bottom: 6px; color: var(--text); font-size: 13px; }
+  .steps a { color: var(--teal); text-decoration: none; font-weight: 500; }
+  .steps a:hover { text-decoration: underline; }
+
+  /* ── LOADING OVERLAY ── */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.9);
+    z-index: 150;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .loading-overlay.open { display: flex; }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid var(--border);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 15px; font-weight: 500; color: var(--text); }
+  .loading-sub { font-size: 13px; color: var(--text-muted); }
+  .loading-progress {
+    width: 280px;
+    background: var(--border);
+    border-radius: 4px;
+    height: 4px;
+    overflow: hidden;
+  }
+  .loading-bar {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* ── ERROR BANNER ── */
+  .error-banner {
+    display: none;
+    background: var(--red-light);
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 0 32px 16px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 13px;
+    color: var(--red);
+  }
+  .error-banner.show { display: block; }
+
+  /* Responsive tweaks */
+  @media (max-width: 900px) {
+    .upload-grid { grid-template-columns: 1fr 1fr; }
+    .watchouts-grid, .tcs-grid { grid-template-columns: 1fr; }
+    .two-col-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .upload-grid { grid-template-columns: 1fr; }
+    .upload-hero { padding: 24px 16px 16px; }
+    .upload-hero h1 { font-size: 26px; }
+    .results-content, .section-wrap { padding-left: 16px; padding-right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════ HEADER ══════════════════════════════════ -->
+<header class="header">
+  <div class="logo">
+    <div>
+      <div class="logo-tag">AI-Powered</div>
+      <div class="logo-name">VendorLens</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="api-key-btn" onclick="openApiModal()">
+      <span class="api-status-dot" id="apiDot"></span>
+      <span id="apiKeyLabel">Set API Key</span>
+    </button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════ UPLOAD PAGE ══════════════════════════════════ -->
+<div class="page active" id="uploadPage">
+
+  <div class="upload-hero">
+    <div class="label">AI-Powered Procurement Analysis</div>
+    <h1>Compare vendor quotes<br>against your scope</h1>
+    <p>Upload your project scope and up to 3 vendor PDFs — get a structured comparison in under a minute.</p>
+  </div>
+
+  <div class="upload-card" style="margin: 0 32px 24px; max-width: unset; max-width: calc(100% - 64px);">
+    <div class="upload-grid">
+
+      <!-- Scope Column -->
+      <div class="upload-col">
+        <div class="upload-col-header">
+          <div class="col-title">Project Scope</div>
+        </div>
+        <div class="field-label">Scope Document <span class="required">*</span></div>
+        <div class="drop-zone" id="scopeZone">
+          <input type="file" accept=".pdf" onchange="handleFile(this, 'scope')">
+          <div class="drop-icon">📄</div>
+          <div class="drop-text">Click or drag PDF</div>
+          <div class="drop-sub">Requirements or RFP</div>
+          <div class="file-name" id="scopeFileName"></div>
+        </div>
+      </div>
+
+      <!-- Vendor 1 -->
+      <div class="upload-col">
+        <div class="upload-col-header">
+          <div class="col-badge">A</div>
+          <div class="col-title">Vendor 1</div>
+        </div>
+        <div class="field-label">Vendor 1 <span class="required">*</span></div>
+        <div class="drop-zone" id="v1Zone">
+          <input type="file" accept=".pdf" onchange="handleFile(this, 'v1')">
+          <div class="drop-icon">📄</div>
+          <div class="drop-text">Click or drag PDF</div>
+          <div class="drop-sub">Quote PDF</div>
+          <div class="file-name" id="v1FileName"></div>
+        </div>
+        <div class="field-label">T&Cs PDF (Optional)</div>
+        <div class="tcs-input" id="v1TcsZone">
+          <input type="file" accept=".pdf" onchange="handleFile(this, 'v1tcs')">
+          📎 <span id="v1TcsName">T&Cs PDF (optional)</span>
+        </div>
+        <div class="field-label">Vendor Notes (Optional)</div>
+        <textarea class="notes-input" id="v1Notes" placeholder="e.g. Previously used, already onboarded"></textarea>
+      </div>
+
+      <!-- Vendor 2 -->
+      <div class="upload-col">
+        <div class="upload-col-header">
+          <div class="col-badge" style="background:#6366f1;">B</div>
+          <div class="col-title">Vendor 2</div>
+        </div>
+        <div class="field-label">Vendor 2</div>
+        <div class="drop-zone" id="v2Zone">
+          <input type="file" accept=".pdf" onchange="handleFile(this, 'v2')">
+          <div class="drop-icon">📄</div>
+          <div class="drop-text">Click or drag PDF</div>
+          <div class="drop-sub">Quote PDF (optional)</div>
+          <div class="file-name" id="v2FileName"></div>
+        </div>
+        <div class="field-label">T&Cs PDF (Optional)</div>
+        <div class="tcs-input" id="v2TcsZone">
+          <input type="file" accept=".pdf" onchange="handleFile(this, 'v2tcs')">
+          📎 <span id="v2TcsName">T&Cs PDF (optional)</span>
+        </div>
+        <div class="field-label">Vendor Notes (Optional)</div>
+        <textarea class="notes-input" id="v2Notes" placeholder="e.g. New vendor, no history"></textarea>
+      </div>
+
+      <!-- Vendor 3 -->
+      <div class="upload-col">
+        <div class="upload-col-header">
+          <div class="col-badge" style="background:#ec4899;">C</div>
+          <div class="col-title">Vendor 3</div>
+        </div>
+        <div class="field-label">Vendor 3</div>
+        <div class="drop-zone" id="v3Zone">
+          <input type="file" accept=".pdf" onchange="handleFile(this, 'v3')">
+          <div class="drop-icon">📄</div>
+          <div class="drop-text">Click or drag PDF</div>
+          <div class="drop-sub">Quote PDF (optional)</div>
+          <div class="file-name" id="v3FileName"></div>
+        </div>
+        <div class="field-label">T&Cs PDF (Optional)</div>
+        <div class="tcs-input" id="v3TcsZone">
+          <input type="file" accept=".pdf" onchange="handleFile(this, 'v3tcs')">
+          📎 <span id="v3TcsName">T&Cs PDF (optional)</span>
+        </div>
+        <div class="field-label">Vendor Notes (Optional)</div>
+        <textarea class="notes-input" id="v3Notes" placeholder="e.g. New vendor, no history"></textarea>
+      </div>
+
+    </div>
+
+    <div class="upload-footer">
+      <div class="file-count" id="fileCount">0 file(s) selected</div>
+      <button class="btn-run" id="runBtn" onclick="runAnalysis()" disabled>
+        Run Analysis →
+      </button>
+    </div>
+  </div>
+
+  <div class="error-banner" id="errorBanner"></div>
+
+  <div class="section-wrap">
+    <div class="section-title">Recent Analyses</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>Scope Document</th>
+            <th>Vendors</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr><td colspan="5" class="empty-state">No analyses yet — upload your first scope above.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ RESULTS PAGE ══════════════════════════════════ -->
+<div class="page" id="resultsPage">
+  <div class="results-header-bar">
+    <button class="btn-back" onclick="showPage('upload')">← Back</button>
+  </div>
+  <div class="results-content" id="resultsContent">
+    <!-- Rendered dynamically -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ MODALS ══════════════════════════════════ -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <h2>🔑 Claude API Key</h2>
+    <p>VendorLens uses Claude AI to analyse your documents. Your key is stored only in this browser.</p>
+    <div class="steps">
+      <ol>
+        <li>Go to <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></li>
+        <li>Sign up or log in, then go to <strong>API Keys</strong></li>
+        <li>Click <strong>Create Key</strong>, copy it, and paste below</li>
+        <li>Add a credit card — usage typically costs a few cents per analysis</li>
+      </ol>
+    </div>
+    <label>Your API Key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." />
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeApiModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveApiKey()">Save Key</button>
+    </div>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Extracting text from PDFs...</div>
+  <div class="loading-sub" id="loadingSub">This may take up to 60 seconds</div>
+  <div class="loading-progress">
+    <div class="loading-bar" id="loadingBar"></div>
+  </div>
+</div>
+
+<script>
+// ─── PDF.js Setup ───────────────────────────────────────────────────────────
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ─── State ──────────────────────────────────────────────────────────────────
+const files = { scope: null, v1: null, v2: null, v3: null, v1tcs: null, v2tcs: null, v3tcs: null };
+let apiKey = localStorage.getItem('vl_api_key') || '';
+let analyses = JSON.parse(localStorage.getItem('vl_analyses') || '[]');
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+updateApiStatus();
+renderHistory();
+
+// ─── API Key ─────────────────────────────────────────────────────────────────
+function openApiModal() {
+  document.getElementById('apiKeyInput').value = apiKey;
+  document.getElementById('apiModal').classList.add('open');
+}
+function closeApiModal() {
+  document.getElementById('apiModal').classList.remove('open');
+}
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) return;
+  apiKey = val;
+  localStorage.setItem('vl_api_key', val);
+  updateApiStatus();
+  closeApiModal();
+}
+function updateApiStatus() {
+  const dot = document.getElementById('apiDot');
+  const label = document.getElementById('apiKeyLabel');
+  if (apiKey) {
+    dot.classList.add('active');
+    label.textContent = 'API Key Set';
+  } else {
+    dot.classList.remove('active');
+    label.textContent = 'Set API Key';
+  }
+}
+
+// ─── File Handling ───────────────────────────────────────────────────────────
+function handleFile(input, key) {
+  const file = input.files[0];
+  if (!file) return;
+  files[key] = file;
+
+  // Update UI
+  const nameMap = {
+    scope: 'scopeFileName', v1: 'v1FileName', v2: 'v2FileName', v3: 'v3FileName',
+    v1tcs: 'v1TcsName', v2tcs: 'v2TcsName', v3tcs: 'v3TcsName'
+  };
+  const zoneMap = {
+    scope: 'scopeZone', v1: 'v1Zone', v2: 'v2Zone', v3: 'v3Zone',
+    v1tcs: 'v1TcsZone', v2tcs: 'v2TcsZone', v3tcs: 'v3TcsZone'
+  };
+
+  const nameEl = document.getElementById(nameMap[key]);
+  if (nameEl) nameEl.textContent = file.name;
+
+  const zoneEl = document.getElementById(zoneMap[key]);
+  if (zoneEl) zoneEl.classList.add('has-file');
+
+  updateFileCount();
+  updateRunButton();
+}
+
+function updateFileCount() {
+  const count = Object.values(files).filter(Boolean).length;
+  document.getElementById('fileCount').textContent = `${count} file(s) selected`;
+}
+
+function updateRunButton() {
+  const ready = files.scope && files.v1;
+  document.getElementById('runBtn').disabled = !ready;
+}
+
+// Drag and drop
+document.querySelectorAll('.drop-zone').forEach(zone => {
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const fileInput = zone.querySelector('input[type="file"]');
+    const key = fileInput.getAttribute('onchange').match(/'(\w+)'\)/)[1];
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === 'application/pdf') {
+      files[key] = file;
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      fileInput.files = dt.files;
+      handleFile(fileInput, key);
+    }
+  });
+});
+
+// ─── PDF Text Extraction ─────────────────────────────────────────────────────
+async function extractPdfText(file, maxChars = 40000) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let text = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map(item => item.str).join(' ');
+    text += `\n--- Page ${i} ---\n${pageText}`;
+    if (text.length > maxChars) break;
+  }
+  return text.slice(0, maxChars);
+}
+
+// ─── Loading UI ───────────────────────────────────────────────────────────────
+function setLoading(show, text, sub, progress) {
+  const overlay = document.getElementById('loadingOverlay');
+  if (show) {
+    overlay.classList.add('open');
+    if (text) document.getElementById('loadingText').textContent = text;
+    if (sub) document.getElementById('loadingSub').textContent = sub;
+    if (progress !== undefined) document.getElementById('loadingBar').style.width = progress + '%';
+  } else {
+    overlay.classList.remove('open');
+  }
+}
+
+function showError(msg) {
+  const banner = document.getElementById('errorBanner');
+  banner.textContent = msg;
+  banner.classList.add('show');
+  setTimeout(() => banner.classList.remove('show'), 8000);
+}
+
+// ─── Main Analysis ───────────────────────────────────────────────────────────
+async function runAnalysis() {
+  if (!apiKey) {
+    openApiModal();
+    return;
+  }
+  if (!files.scope || !files.v1) return;
+
+  try {
+    setLoading(true, 'Extracting text from PDFs...', 'Reading your documents', 5);
+
+    // Extract text from all PDFs
+    const scopeText = await extractPdfText(files.scope);
+    setLoading(true, 'Reading vendor quotes...', 'Extracting quote details', 20);
+
+    const v1Text = await extractPdfText(files.v1);
+    const v2Text = files.v2 ? await extractPdfText(files.v2) : null;
+    const v3Text = files.v3 ? await extractPdfText(files.v3) : null;
+    const v1tcsText = files.v1tcs ? await extractPdfText(files.v1tcs, 20000) : null;
+    const v2tcsText = files.v2tcs ? await extractPdfText(files.v2tcs, 20000) : null;
+    const v3tcsText = files.v3tcs ? await extractPdfText(files.v3tcs, 20000) : null;
+
+    const v1Notes = document.getElementById('v1Notes').value.trim();
+    const v2Notes = document.getElementById('v2Notes').value.trim();
+    const v3Notes = document.getElementById('v3Notes').value.trim();
+
+    setLoading(true, 'Sending to Claude AI...', 'Analysing documents — this takes ~30s', 40);
+
+    const activeVendors = [
+      { text: v1Text, tcs: v1tcsText, notes: v1Notes, label: 'Vendor 1' },
+      ...(v2Text ? [{ text: v2Text, tcs: v2tcsText, notes: v2Notes, label: 'Vendor 2' }] : []),
+      ...(v3Text ? [{ text: v3Text, tcs: v3tcsText, notes: v3Notes, label: 'Vendor 3' }] : []),
+    ];
+
+    const result = await callClaude(scopeText, activeVendors);
+    setLoading(true, 'Building your report...', 'Almost there', 90);
+
+    // Save to history
+    const entry = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' }),
+      scopeName: files.scope.name,
+      vendorNames: result.vendors.map(v => v.name).join(', '),
+      result
+    };
+    analyses.unshift(entry);
+    if (analyses.length > 20) analyses = analyses.slice(0, 20);
+    localStorage.setItem('vl_analyses', JSON.stringify(analyses));
+
+    setLoading(false);
+    renderHistory();
+    showResults(entry);
+
+  } catch (err) {
+    setLoading(false);
+    console.error(err);
+    showError('Error: ' + (err.message || 'Something went wrong. Check your API key and try again.'));
+  }
+}
+
+// ─── Claude API Call ──────────────────────────────────────────────────────────
+async function callClaude(scopeText, vendors) {
+  const vendorSections = vendors.map((v, i) => `
+=== VENDOR ${i + 1} QUOTE ===
+${v.text}
+${v.tcs ? `\n=== VENDOR ${i + 1} T&Cs ===\n${v.tcs}` : ''}
+${v.notes ? `\nVendor ${i + 1} Notes from user: ${v.notes}` : ''}
+`).join('\n\n');
+
+  const prompt = `You are an expert procurement analyst. Analyse the following documents and return ONLY a valid JSON object — no markdown, no explanation, just raw JSON.
+
+=== PROJECT SCOPE ===
+${scopeText}
+
+${vendorSections}
+
+Return this exact JSON structure (replace comments with real data):
+
+{
+  "executive_summary": "2-4 sentence overview comparing vendors on price, scope coverage, and key differences",
+  "vendors": [
+    {
+      "name": "Detected vendor company name",
+      "total_inc_gst": 49387.38,
+      "total_exc_gst": 44897.62,
+      "currency": "AUD",
+      "quote_date": "4 May 2026",
+      "scope_items_covered": 6,
+      "scope_items_total": 7,
+      "is_recommended": false,
+      "is_lowest": true,
+      "recommendation_reason": null
+    }
+  ],
+  "scope_items": [
+    {
+      "scope_description": "Exact item name from scope document",
+      "vendors": [
+        {
+          "price_exc_gst": 3304.57,
+          "price_label": "$3,304.57",
+          "description": "Brief note on what vendor included/excluded/modified",
+          "status": "included"
+        }
+      ]
+    }
+  ],
+  "watch_outs_per_vendor": [
+    ["Watch-out 1 for vendor 1", "Watch-out 2 for vendor 1"],
+    ["Watch-out 1 for vendor 2"],
+    []
+  ],
+  "tcs_risks_per_vendor": [
+    [{"text": "Risk description", "severity": "high"}],
+    [{"text": "Risk description", "severity": "medium"}],
+    []
+  ],
+  "consolidated_watch_outs": [
+    "Cross-vendor risk or concern 1",
+    "Cross-vendor risk or concern 2"
+  ],
+  "next_steps": [
+    "Concrete action item 1",
+    "Concrete action item 2"
+  ]
+}
+
+Rules:
+- status must be "included", "partial", or "excluded"
+- severity must be "high", "medium", or "low"
+- is_recommended: mark at most one vendor as true (the best overall choice)
+- is_lowest: mark the vendor with the lowest total price
+- If a vendor doesn't cover a scope item, still include it with status "excluded" and a note
+- vendors array and scope_items[].vendors arrays must be in the same order (vendor 1 first, etc.)
+- Prices should be numbers (not strings), null if not found
+- Return at least 4 consolidated_watch_outs and 4 next_steps
+- ALL text should use plain language, no jargon`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API error ${response.status}`);
+  }
+
+  const data = await response.json();
+  let text = data.content[0].text.trim();
+
+  // Strip markdown code blocks if present
+  text = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+
+  return JSON.parse(text);
+}
+
+// ─── Page Navigation ──────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(name + 'Page').classList.add('active');
+}
+
+function showResults(entry) {
+  const html = buildResultsHtml(entry);
+  document.getElementById('resultsContent').innerHTML = html;
+  showPage('results');
+  window.scrollTo(0, 0);
+}
+
+// ─── History ──────────────────────────────────────────────────────────────────
+function renderHistory() {
+  const tbody = document.getElementById('historyBody');
+  if (!analyses.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No analyses yet — upload your first scope above.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = analyses.map((entry, i) => `
+    <tr onclick="showResults(analyses[${i}])">
+      <td class="td-num">${i + 1}</td>
+      <td><div class="td-scope"><span class="td-scope-icon">📄</span>${escHtml(entry.scopeName)}</div></td>
+      <td style="color:var(--text-muted);font-size:12px">${escHtml(entry.vendorNames)}</td>
+      <td style="color:var(--text-muted)">🕐 ${entry.date}</td>
+      <td><span class="badge-complete">Complete</span></td>
+    </tr>
+  `).join('');
+}
+
+// ─── Results Rendering ────────────────────────────────────────────────────────
+function buildResultsHtml(entry) {
+  const r = entry.result;
+  const vendors = r.vendors || [];
+  const numVendors = vendors.length;
+
+  // Header card
+  let html = `
+    <div class="result-header-card">
+      <div class="result-scope-info">
+        <span class="result-scope-icon">📄</span>
+        <div>
+          <div class="result-scope-name">${escHtml(entry.scopeName)}</div>
+          <div class="result-vendor-count">${numVendors} vendor${numVendors !== 1 ? 's' : ''} compared</div>
+        </div>
+      </div>
+      <span class="badge-complete">Complete</span>
+    </div>
+  `;
+
+  // Executive summary
+  html += `
+    <div class="card">
+      <div class="card-header"><h3>Executive Summary</h3></div>
+      <div class="card-body">
+        <div class="executive-summary">${escHtml(r.executive_summary || '')}</div>
+      </div>
+    </div>
+  `;
+
+  // Vendor comparison
+  html += `<div class="card"><div class="card-header"><h3>Vendor Comparison</h3></div><div class="comparison-table-wrap"><table class="comparison-table">`;
+
+  // Header row
+  html += `<thead><tr><th class="scope-col">Scope Item</th>`;
+  vendors.forEach((v, i) => {
+    const colStyle = v.is_recommended ? 'background:#fffbeb;' : '';
+    html += `<th class="vendor-col" style="${colStyle}">`;
+    if (v.is_lowest) html += `<div class="badge-lowest">↓ Lowest</div>`;
+    if (v.is_recommended) html += `<div class="badge-recommended">★ Recommended</div>`;
+    html += `<div class="vendor-th-name">${escHtml(v.name || `Vendor ${i + 1}`)}</div>`;
+    const price = v.total_inc_gst != null
+      ? `$${Number(v.total_inc_gst).toLocaleString('en-AU', {minimumFractionDigits: 2, maximumFractionDigits: 2})} inc. GST`
+      : (v.total_exc_gst != null ? `$${Number(v.total_exc_gst).toLocaleString('en-AU', {minimumFractionDigits: 2, maximumFractionDigits: 2})} exc. GST` : '—');
+    html += `<div class="vendor-th-price">${price}</div>`;
+    html += `<div class="vendor-th-meta">`;
+    if (v.quote_date) html += `<span>📅 ${escHtml(v.quote_date)}</span>`;
+    if (v.scope_items_covered != null) html += `<span class="scope-coverage">📋 ${v.scope_items_covered}/${v.scope_items_total || '?'}</span>`;
+    html += `</div>`;
+    if (v.is_recommended && v.recommendation_reason) {
+      html += `<div class="recommended-reason">${escHtml(v.recommendation_reason)}</div>`;
+    }
+    html += `</th>`;
+  });
+  html += `</tr></thead><tbody>`;
+
+  // Scope item rows
+  (r.scope_items || []).forEach(item => {
+    html += `<tr><td class="scope-col">${escHtml(item.scope_description || '')}</td>`;
+    (item.vendors || []).forEach((vd, i) => {
+      const bg = vendors[i]?.is_recommended ? 'background:#fffbeb;' : '';
+      html += `<td style="${bg}"><div class="price-cell">`;
+      html += `<div class="price-amount">`;
+      html += `<span class="status-dot ${vd.status || 'excluded'}"></span>`;
+      html += vd.price_label ? escHtml(vd.price_label) : (vd.status === 'excluded' ? '<span style="color:var(--red);font-size:12px">Excluded</span>' : '—');
+      html += `</div>`;
+      if (vd.description) html += `<div class="price-notes">${escHtml(vd.description)}</div>`;
+      html += `</div></td>`;
+    });
+    // Pad if fewer vendor columns than expected
+    for (let i = (item.vendors || []).length; i < numVendors; i++) {
+      html += `<td>—</td>`;
+    }
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table></div></div>`;
+
+  // Watch-outs per vendor
+  const watchOuts = r.watch_outs_per_vendor || [];
+  const hasWatchOuts = watchOuts.some(w => w && w.length);
+  if (hasWatchOuts) {
+    html += `<div class="card"><div class="card-header"><h3>⚠ Watch-Outs</h3></div>`;
+    html += `<div class="watchouts-grid">`;
+    html += `<div class="watchouts-label-col"><div class="wo-title">⚠ Watch-Outs</div></div>`;
+    vendors.forEach((v, i) => {
+      const items = watchOuts[i] || [];
+      html += `<div class="watchouts-vendor-col">`;
+      if (items.length) {
+        items.forEach((item, j) => {
+          html += `<div class="wo-item"><div class="wo-num">${j + 1}</div><div>${escHtml(item)}</div></div>`;
+        });
+      } else {
+        html += `<div class="no-tcs">No watch-outs identified</div>`;
+      }
+      html += `</div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // T&Cs risks per vendor
+  const tcsRisks = r.tcs_risks_per_vendor || [];
+  const hasTcs = tcsRisks.some(t => t && t.length);
+  if (hasTcs) {
+    html += `<div class="card"><div class="card-header"><h3>T&Cs Risk Flags</h3></div>`;
+    html += `<div class="tcs-grid">`;
+    html += `<div class="tcs-label-col"><div class="tcs-title">🛡 T&Cs Risk Flags</div></div>`;
+    vendors.forEach((v, i) => {
+      const items = tcsRisks[i] || [];
+      html += `<div class="tcs-vendor-col">`;
+      if (items.length) {
+        items.forEach(item => {
+          const sev = item.severity || 'medium';
+          html += `<div class="tcs-item"><span class="tcs-dot ${sev}"></span><span>${escHtml(item.text || item)}</span></div>`;
+        });
+      } else {
+        html += `<div class="no-tcs">No T&Cs uploaded</div>`;
+      }
+      html += `</div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Consolidated watch-outs + next steps
+  const cwos = r.consolidated_watch_outs || [];
+  const nxts = r.next_steps || [];
+  html += `<div class="two-col-grid">`;
+
+  // Watch-outs & risks card
+  html += `
+    <div class="card">
+      <div class="card-header">
+        <h3>⚠ Watch-Outs &amp; Risks</h3>
+        <span class="count-badge">${cwos.length}</span>
+      </div>
+      <div class="card-body">
+        <div class="numbered-list">
+          ${cwos.map((item, i) => `
+            <div class="num-item">
+              <div class="num-badge orange">${i + 1}</div>
+              <div>${escHtml(item)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Next steps card
+  html += `
+    <div class="card">
+      <div class="card-header">
+        <h3>⟳ Next Steps</h3>
+        <span class="count-badge">${nxts.length}</span>
+      </div>
+      <div class="card-body">
+        <div class="numbered-list">
+          ${nxts.map((item, i) => `
+            <div class="num-item">
+              <div class="num-badge blue">${i + 1}</div>
+              <div>${escHtml(item)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+
+  html += `</div>`;
+
+  return html;
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
