@@ -963,7 +963,7 @@ function renderVendors() {
             ondrop="handleDrop(event,'quote','${v.id}')">
             <input type="file" accept=".pdf" multiple onchange="handleFileInput(event,'quote','${v.id}')">
             <div class="drop-icon" style="font-size:16px">📄</div>
-            <div class="drop-text" style="font-size:11px"><strong>Upload quote</strong></div>
+            <div class="drop-text" style="font-size:11px"><strong>Upload quotes</strong><br><span style="color:var(--text3);font-weight:400">Multiple PDFs ok</span></div>
           </div>
           <div class="file-pills" id="quote-pills-${v.id}"></div>
         </div>
@@ -1032,7 +1032,7 @@ function addFiles(files, type, vendorId) {
   const v = vendors.find(x => x.id === vendorId);
   if (!v) return;
   if (type === 'quote') {
-    v.quoteFiles = [...v.quoteFiles, ...files].slice(0, 2);
+    v.quoteFiles = [...v.quoteFiles, ...files];
     renderPills('quote-pills-' + vendorId, v.quoteFiles, 'quote', vendorId);
   } else {
     v.tcsFiles = [...v.tcsFiles, ...files].slice(0, 1);
