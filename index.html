@@ -6,6 +6,7 @@
 <title>ScopeIQ — Vendor Quote Analyser</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
 :root {
   --bg: #f8f8f8;
@@ -961,9 +962,9 @@ function renderVendors() {
           <div class="drop-zone" style="padding:14px"
             ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
             ondrop="handleDrop(event,'quote','${v.id}')">
-            <input type="file" accept=".pdf" multiple onchange="handleFileInput(event,'quote','${v.id}')">
+            <input type="file" accept="${ACCEPTED_TYPES}" multiple onchange="handleFileInput(event,'quote','${v.id}')">
             <div class="drop-icon" style="font-size:16px">📄</div>
-            <div class="drop-text" style="font-size:11px"><strong>Upload quotes</strong><br><span style="color:var(--text3);font-weight:400">Multiple PDFs ok</span></div>
+            <div class="drop-text" style="font-size:11px"><strong>Upload quotes</strong><br><span style="color:var(--text3);font-weight:400">PDF, image or Word doc</span></div>
           </div>
           <div class="file-pills" id="quote-pills-${v.id}"></div>
         </div>
@@ -972,9 +973,9 @@ function renderVendors() {
           <div class="drop-zone" style="padding:14px"
             ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
             ondrop="handleDrop(event,'tcs','${v.id}')">
-            <input type="file" accept=".pdf" multiple onchange="handleFileInput(event,'tcs','${v.id}')">
+            <input type="file" accept="${ACCEPTED_TYPES}" onchange="handleFileInput(event,'tcs','${v.id}')">
             <div class="drop-icon" style="font-size:16px">📋</div>
-            <div class="drop-text" style="font-size:11px"><strong>Upload T&Cs</strong></div>
+            <div class="drop-text" style="font-size:11px"><strong>Upload T&Cs</strong><br><span style="color:var(--text3);font-weight:400">PDF, image or Word doc</span></div>
           </div>
           <div class="file-pills" id="tcs-pills-${v.id}"></div>
         </div>
@@ -1057,12 +1058,17 @@ function removeFile(type, vendorId, index) {
   }
 }
 
+function fileIcon(file) {
+  if (isImage(file)) return '🖼️';
+  if (isDocx(file))  return '📝';
+  return '📄';
+}
 function renderPills(containerId, files, type, vendorId) {
   const el = document.getElementById(containerId);
   if (!el) return;
   el.innerHTML = files.map((f, i) => `
     <div class="file-pill">
-      📄 ${truncate(f.name, 24)}
+      ${fileIcon(f)} ${truncate(f.name, 24)}
       <button onclick="removeFile('${type}','${vendorId}',${i})">×</button>
     </div>
   `).join('');
@@ -1076,7 +1082,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 // Returns { text, lastPagesText, numPages } — lastPagesText is the final 10 pages
 // for documents over 20 pages (where fee tables often hide), otherwise null.
 async function extractPdfData(file) {
-  if (!file.name.toLowerCase().endsWith('.pdf')) {
+  if (!isPdf(file)) {
     const text = await extractPdfText(file);
     return { text, lastPagesText: null, numPages: 0 };
   }
@@ -1103,24 +1109,49 @@ async function extractPdfData(file) {
   return { text, lastPagesText, numPages };
 }
 
-async function extractPdfText(file) {
-  if (!file.name.toLowerCase().endsWith('.pdf')) {
-    return new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = e => res(e.target.result);
-      r.onerror = rej;
-      r.readAsText(file);
-    });
-  }
+const ACCEPTED_TYPES = '.pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.txt';
+function isImage(file) { return /\.(jpg|jpeg|png|webp)$/i.test(file.name); }
+function isPdf(file)   { return /\.pdf$/i.test(file.name); }
+function isDocx(file)  { return /\.docx?$/i.test(file.name); }
+
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+function imageMediaType(file) {
+  const n = file.name.toLowerCase();
+  if (n.endsWith('.png'))  return 'image/png';
+  if (n.endsWith('.webp')) return 'image/webp';
+  return 'image/jpeg';
+}
+async function extractDocxText(file) {
   const buf = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-  let text = '';
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map(it => it.str).join(' ') + '\n';
+  const result = await mammoth.extractRawText({ arrayBuffer: buf });
+  return result.value;
+}
+async function extractPdfText(file) {
+  if (isPdf(file)) {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(it => it.str).join(' ') + '\n';
+    }
+    return text.slice(0, 40000);
   }
-  return text.slice(0, 40000);
+  if (isDocx(file)) return extractDocxText(file);
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsText(file);
+  });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1131,29 +1162,42 @@ async function runAnalysis() {
   if (!apiKey) { showError('Please enter your Anthropic API key first.'); return; }
   if (scopeFiles.length === 0) { showError('Please upload a scope / brief document.'); return; }
   const activeVendors = vendors.filter(v => v.quoteFiles.length > 0);
-  if (activeVendors.length === 0) { showError('Please upload at least one vendor quote PDF.'); return; }
+  if (activeVendors.length === 0) { showError('Please upload at least one vendor quote file.'); return; }
 
   hideError();
   document.getElementById('analyse-btn').disabled = true;
-  showProgress('ps-extract', 'Reading documents…', 'Extracting text from your PDFs');
+  showProgress('ps-extract', 'Reading documents…', 'Extracting content from your files');
 
   try {
     // Extract scope text
     const scopeText = await extractPdfText(scopeFiles[0]);
 
-    // Extract vendor texts
+    // Extract vendor content — text + images handled separately
     const vendorData = [];
+    const allImageBlocks = [];
     for (const v of activeVendors) {
       let quoteText = '';
       let feeSummary = '';
       for (const f of v.quoteFiles) {
-        const { text, lastPagesText } = await extractPdfData(f);
-        quoteText += text + '\n\n';
-        if (lastPagesText) feeSummary += lastPagesText + '\n\n';
+        if (isImage(f)) {
+          const b64 = await fileToBase64(f);
+          allImageBlocks.push({ data: b64, mediaType: imageMediaType(f), label: v.name });
+          quoteText += `[Image file attached: ${f.name}]\n`;
+        } else {
+          const { text, lastPagesText } = await extractPdfData(f);
+          quoteText += text + '\n\n';
+          if (lastPagesText) feeSummary += lastPagesText + '\n\n';
+        }
       }
       let tcsText = '';
       for (const f of v.tcsFiles) {
-        tcsText += await extractPdfText(f) + '\n\n';
+        if (isImage(f)) {
+          const b64 = await fileToBase64(f);
+          allImageBlocks.push({ data: b64, mediaType: imageMediaType(f), label: v.name + ' T&Cs' });
+          tcsText += `[Image file attached: ${f.name}]\n`;
+        } else {
+          tcsText += await extractPdfText(f) + '\n\n';
+        }
       }
       vendorData.push({ name: v.name, quoteText: quoteText.slice(0, 40000), feeSummary: feeSummary.slice(0, 15000), tcsText: tcsText.slice(0, 20000), notes: v.notes });
     }
@@ -1161,7 +1205,7 @@ async function runAnalysis() {
     showProgress('ps-send', 'Analysing with Claude AI…', 'Reading all documents and comparing vendors');
 
     const prompt = buildPrompt(scopeText, vendorData);
-    const response = await callClaude(apiKey, prompt);
+    const response = await callClaude(apiKey, prompt, allImageBlocks);
 
     showProgress('ps-parse', 'Parsing results…', 'Almost done');
 
@@ -1234,7 +1278,17 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
   return prompt;
 }
 
-async function callClaude(apiKey, prompt) {
+async function callClaude(apiKey, prompt, imageBlocks = []) {
+  let content;
+  if (imageBlocks.length === 0) {
+    content = prompt;
+  } else {
+    content = [{ type: 'text', text: prompt }];
+    for (const img of imageBlocks) {
+      content.push({ type: 'text', text: `\n[Image from ${img.label}:]` });
+      content.push({ type: 'image', source: { type: 'base64', media_type: img.mediaType, data: img.data } });
+    }
+  }
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -1246,7 +1300,7 @@ async function callClaude(apiKey, prompt) {
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
       max_tokens: 4096,
-      messages: [{ role: 'user', content: prompt }]
+      messages: [{ role: 'user', content }]
     })
   });
   if (!res.ok) {
