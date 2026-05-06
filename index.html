@@ -1073,6 +1073,36 @@ function renderPills(containerId, files, type, vendorId) {
 // ═══════════════════════════════════════════════════════
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
+// Returns { text, lastPagesText, numPages } — lastPagesText is the final 10 pages
+// for documents over 20 pages (where fee tables often hide), otherwise null.
+async function extractPdfData(file) {
+  if (!file.name.toLowerCase().endsWith('.pdf')) {
+    const text = await extractPdfText(file);
+    return { text, lastPagesText: null, numPages: 0 };
+  }
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const numPages = pdf.numPages;
+  let text = '';
+  for (let i = 1; i <= numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(it => it.str).join(' ') + '\n';
+  }
+  let lastPagesText = null;
+  if (numPages > 20) {
+    const startPage = Math.max(1, numPages - 9);
+    let lastText = '';
+    for (let i = startPage; i <= numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      lastText += `[Page ${i} of ${numPages}]\n` + content.items.map(it => it.str).join(' ') + '\n';
+    }
+    lastPagesText = lastText;
+  }
+  return { text, lastPagesText, numPages };
+}
+
 async function extractPdfText(file) {
   if (!file.name.toLowerCase().endsWith('.pdf')) {
     return new Promise((res, rej) => {
@@ -1115,14 +1145,17 @@ async function runAnalysis() {
     const vendorData = [];
     for (const v of activeVendors) {
       let quoteText = '';
+      let feeSummary = '';
       for (const f of v.quoteFiles) {
-        quoteText += await extractPdfText(f) + '\n\n';
+        const { text, lastPagesText } = await extractPdfData(f);
+        quoteText += text + '\n\n';
+        if (lastPagesText) feeSummary += lastPagesText + '\n\n';
       }
       let tcsText = '';
       for (const f of v.tcsFiles) {
         tcsText += await extractPdfText(f) + '\n\n';
       }
-      vendorData.push({ name: v.name, quoteText: quoteText.slice(0, 40000), tcsText: tcsText.slice(0, 20000), notes: v.notes });
+      vendorData.push({ name: v.name, quoteText: quoteText.slice(0, 40000), feeSummary: feeSummary.slice(0, 15000), tcsText: tcsText.slice(0, 20000), notes: v.notes });
     }
 
     showProgress('ps-send', 'Analysing with Claude AI…', 'Reading all documents and comparing vendors');
@@ -1152,6 +1185,11 @@ async function runAnalysis() {
 function buildPrompt(scopeText, vendorData) {
   let prompt = `You are an expert procurement analyst. Analyse the scope of work and vendor quotes below, then return a JSON analysis.
 
+IMPORTANT INSTRUCTIONS:
+- Fee and pricing information is often found near the END of proposal documents — in appendices, schedules, or fee summary pages. Search the entire document thoroughly including the final pages before concluding that no fee is provided.
+- Where a PRIORITY fee section is provided below, check it first — it contains the last pages of the document where pricing tables most commonly appear.
+- If you find a fee anywhere in the document, always include it in the totalPrice field. Do not leave totalPrice null if any dollar amount is mentioned.
+
 SCOPE / BRIEF:
 ${scopeText}
 
@@ -1159,7 +1197,8 @@ ${scopeText}
   vendorData.forEach((v, i) => {
     prompt += `\nVENDOR ${i+1}: ${v.name}\n`;
     if (v.notes) prompt += `Vendor notes from user: ${v.notes}\n`;
-    prompt += `Quote:\n${v.quoteText}\n`;
+    if (v.feeSummary) prompt += `PRIORITY: Check this section first for fee totals, pricing tables, and cost summaries (extracted from the final pages of this vendor's document):\n${v.feeSummary}\n\n`;
+    prompt += `Full Quote Document:\n${v.quoteText}\n`;
     if (v.tcsText) prompt += `T&Cs:\n${v.tcsText}\n`;
   });
 
@@ -1289,6 +1328,17 @@ function renderResults(analysis) {
     });
 
     html += `</tbody></table></div></div>`;
+  }
+
+  // Fee not detected warning
+  if (analysis.vendorSummaries && analysis.vendorSummaries.length > 0) {
+    const missingFee = analysis.vendorSummaries.filter(v => !v.totalPrice || v.totalPrice === '—' || v.totalPrice === 'null' || v.totalPrice.toLowerCase().includes('not provided') || v.totalPrice.toLowerCase().includes('not found'));
+    if (missingFee.length > 0) {
+      html += `<div style="background:rgba(239,159,39,0.12);border:1px solid rgba(239,159,39,0.4);border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--text2);">
+        <strong style="color:#EF9F27">⚠ Fee not detected for: ${missingFee.map(v => esc(v.name)).join(', ')}</strong><br>
+        <span>Pricing is often in the final pages of large proposal documents. Try uploading just the fee/pricing pages as a separate additional quote file for ${missingFee.length === 1 ? 'this vendor' : 'these vendors'} and re-run the analysis.</span>
+      </div>`;
+    }
   }
 
   // Vendor summary cards
