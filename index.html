@@ -597,6 +597,7 @@ nav {
 .vendor-watchouts { margin-top: 14px; }
 .watchout-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--warn); margin-bottom: 6px; }
 .watchout-item {
+  display: flex; align-items: flex-start; gap: 4px;
   background: var(--amber);
   border-left: 3px solid var(--warn);
   border-radius: 0 6px 6px 0;
@@ -637,7 +638,7 @@ nav {
   background: var(--purp-ll);
   border: 1px solid var(--purp-l);
   border-radius: 10px;
-  padding: 14px 18px;
+  padding: 14px 20px;
   display: flex;
   gap: 14px;
   align-items: flex-start;
@@ -669,6 +670,47 @@ nav {
   align-items: flex-start;
 }
 .wo-icon { flex-shrink: 0; font-size: 15px; }
+
+/* ── Dismiss watch-outs ── */
+.watchout-block { position: relative; }
+.watchout-block.dismissed { opacity: 0.38; }
+.watchout-block.dismissed > div:not(.wo-icon) { text-decoration: line-through; }
+.wo-dismiss-btn {
+  flex-shrink: 0; margin-left: auto; background: none; border: 1px solid var(--warn);
+  border-radius: 5px; font-size: 10px; font-weight: 600; color: var(--warn);
+  cursor: pointer; padding: 2px 8px; opacity: 0.7; transition: opacity 0.15s; white-space: nowrap;
+}
+.wo-dismiss-btn:hover { opacity: 1; }
+.watchout-block.dismissed .wo-dismiss-btn { border-color: var(--text3); color: var(--text3); }
+
+/* ── Refresh / recheck ── */
+.btn-refresh {
+  background: var(--purp); color: #fff; border: none; border-radius: 8px;
+  padding: 8px 16px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.2s; display: none; align-items: center; gap: 6px;
+}
+.btn-refresh:hover { background: var(--purp-d); }
+.last-updated-label {
+  font-size: 11px; color: rgba(255,255,255,0.5); align-self: center; display: none;
+}
+.recheck-panel {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  margin-bottom: 32px; overflow: hidden;
+}
+.recheck-header {
+  padding: 14px 20px; cursor: pointer; display: flex; align-items: center;
+  justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text2);
+  user-select: none;
+}
+.recheck-header:hover { background: var(--surface2); }
+.recheck-body { padding: 0 20px 20px; display: none; }
+.recheck-body.open { display: block; }
+.recheck-vendor { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.recheck-vendor:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.recheck-vendor-name { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+.recheck-hint { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 7px; font-family: 'Syne',sans-serif; font-size: 12px; background: var(--surface2); color: var(--text); resize: none; margin-top: 8px; box-sizing: border-box; }
+.recheck-hint:focus { outline: none; border-color: var(--purp); }
+.global-hints-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
 
 /* ── History view ── */
 .history-empty {
@@ -843,12 +885,15 @@ nav {
     <div class="results-sub" id="results-sub"></div>
     <div class="results-actions">
       <button class="btn-new-analysis" onclick="newAnalysis()">+ New analysis</button>
-      <button class="btn-gasst" onclick="showView('history')">📋 View history</button>
+      <button class="btn-ghost" onclick="showView('history')">📋 View history</button>
+      <button class="btn-refresh" id="refresh-btn" onclick="refreshAnalysis()">🔄 Refresh analysis</button>
+      <span class="last-updated-label" id="last-updated-label"></span>
     </div>
   </div>
 
   <div class="container">
     <div id="results-content"></div>
+    <div id="recheck-panel"></div>
   </div>
 
 </div>
@@ -874,14 +919,18 @@ nav {
 // ═══════════════════════════════════════════════════════
 const STORAGE_KEY   = 'scopeiq_key';
 const HISTORY_KEY   = 'scopeiq_analyses';
-const THEME_KEX     = 'scopeiq_theme';
+const THEME_KEY     = 'scopeiq_theme';
 
 let scopeFiles    = [];
 let vendors       = [];   // [{id, name, quoteFiles, tcsFiles, notes}]
 let vendorCount   = 0;
+let currentAnalysis  = null;
+let recheckData      = { extraFiles: {}, vendorHints: {}, globalHints: '' };
+let dismissedWatchOuts = new Set();
+let lastUpdated      = null;
 
 // ── Theme ──
-let isDark = localStorage.getItem(THEME_KEX) === 'dark';
+let isDark = localStorage.getItem(THEME_KEY) === 'dark';
 function applyTheme() {
   document.body.setAttribute('data-theme', isDark ? 'dark' : '');
   document.getElementById('theme-icon').textContent  = isDark ? '☽' : '☀';
@@ -889,7 +938,7 @@ function applyTheme() {
 }
 function toggleTheme() {
   isDark = !isDark;
-  localStorage.setItem(THEME_KEX, isDark ? 'dark' : 'light');
+  localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
   applyTheme();
 }
 applyTheme();
@@ -1114,7 +1163,7 @@ function isImage(file) { return /\.(jpg|jpeg|png|webp)$/i.test(file.name); }
 function isPdf(file)   { return /\.pdf$/i.test(file.name); }
 function isDocx(file)  { return /\.docx?$/i.test(file.name); }
 
-async function fileToBase64(file) {
+apync function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = e => resolve(e.target.result.split(',')[1]);
@@ -1122,17 +1171,20 @@ async function fileToBase64(file) {
     reader.readAsDataURL(file);
   });
 }
+
 function imageMediaType(file) {
   const n = file.name.toLowerCase();
   if (n.endsWith('.png'))  return 'image/png';
   if (n.endsWith('.webp')) return 'image/webp';
   return 'image/jpeg';
 }
+
 async function extractDocxText(file) {
   const buf = await file.arrayBuffer();
   const result = await mammoth.extractRawText({ arrayBuffer: buf });
   return result.value;
 }
+
 async function extractPdfText(file) {
   if (isPdf(file)) {
     const buf = await file.arrayBuffer();
@@ -1146,6 +1198,7 @@ async function extractPdfText(file) {
     return text.slice(0, 40000);
   }
   if (isDocx(file)) return extractDocxText(file);
+  // txt or fallback
   return new Promise((res, rej) => {
     const r = new FileReader();
     r.onload = e => res(e.target.result);
@@ -1169,38 +1222,8 @@ async function runAnalysis() {
   showProgress('ps-extract', 'Reading documents…', 'Extracting content from your files');
 
   try {
-    // Extract scope text
     const scopeText = await extractPdfText(scopeFiles[0]);
-
-    // Extract vendor content — text + images handled separately
-    const vendorData = [];
-    const allImageBlocks = [];
-    for (const v of activeVendors) {
-      let quoteText = '';
-      let feeSummary = '';
-      for (const f of v.quoteFiles) {
-        if (isImage(f)) {
-          const b64 = await fileToBase64(f);
-          allImageBlocks.push({ data: b64, mediaType: imageMediaType(f), label: v.name });
-          quoteText += `[Image file attached: ${f.name}]\n`;
-        } else {
-          const { text, lastPagesText } = await extractPdfData(f);
-          quoteText += text + '\n\n';
-          if (lastPagesText) feeSummary += lastPagesText + '\n\n';
-        }
-      }
-      let tcsText = '';
-      for (const f of v.tcsFiles) {
-        if (isImage(f)) {
-          const b64 = await fileToBase64(f);
-          allImageBlocks.push({ data: b64, mediaType: imageMediaType(f), label: v.name + ' T&Cs' });
-          tcsText += `[Image file attached: ${f.name}]\n`;
-        } else {
-          tcsText += await extractPdfText(f) + '\n\n';
-        }
-      }
-      vendorData.push({ name: v.name, quoteText: quoteText.slice(0, 40000), feeSummary: feeSummary.slice(0, 15000), tcsText: tcsText.slice(0, 20000), notes: v.notes });
-    }
+    const { vendorData, allImageBlocks } = await gatherVendorData(activeVendors, recheckData);
 
     showProgress('ps-send', 'Analysing with Claude AI…', 'Reading all documents and comparing vendors');
 
@@ -1213,6 +1236,10 @@ async function runAnalysis() {
     analysis.timestamp = new Date().toISOString();
     analysis.vendorNames = vendorData.map(v => v.name);
 
+    currentAnalysis = analysis;
+    lastUpdated = new Date();
+    dismissedWatchOuts = new Set();
+    recheckData = { extraFiles: {}, vendorHints: {}, globalHints: '' };
     saveToHistory(analysis);
     renderResults(analysis);
     showView('results');
@@ -1222,8 +1249,173 @@ async function runAnalysis() {
     console.error(err);
   } finally {
     document.getElementById('analyse-btn').disabled = false;
-    document.getElementById('progress-overlay').classList.remove('sanw');
+    document.getElementById('progress-overlay').classList.remove('show');
   }
+}
+
+// ── Shared vendor data extraction (used by both runAnalysis + refreshAnalysis) ──
+async function gatherVendorData(activeVendors, supp = {}) {
+  const vendorData = [];
+  const allImageBlocks = [];
+  for (const v of activeVendors) {
+    const extraFiles = supp.extraFiles?.[v.id] || [];
+    const allQuoteFiles = [...v.quoteFiles, ...extraFiles];
+    let quoteText = '';
+    let feeSummary = '';
+    for (const f of allQuoteFiles) {
+      if (isImage(f)) {
+        const b64 = await fileToBase64(f);
+        allImageBlocks.push({ data: b64, mediaType: imageMediaType(f), label: v.name });
+        quoteText += `[Image file attached: ${f.name}]\n`;
+      } else {
+        const { text, lastPagesText } = await extractPdfData(f);
+        quoteText += text + '\n\n';
+        if (lastPagesText) feeSummary += lastPagesText + '\n\n';
+      }
+    }
+    let tcsText = '';
+    for (const f of v.tcsFiles) {
+      if (isImage(f)) {
+        const b64 = await fileToBase64(f);
+        allImageBlocks.push({ data: b64, mediaType: imageMediaType(f), label: v.name + ' T&Cs' });
+        tcsText += `[Image file attached: ${f.name}]\n`;
+      } else {
+        tcsText += await extractPdfText(f) + '\n\n';
+      }
+    }
+    const vendorHint = supp.vendorHints?.[v.id] || '';
+    const globalHint = supp.globalHints || '';
+    const combinedNotes = [v.notes, vendorHint, globalHint].filter(Boolean).join('\n');
+    vendorData.push({ name: v.name, quoteText: quoteText.slice(0, 40000), feeSummary: feeSummary.slice(0, 15000), tcsText: tcsText.slice(0, 20000), notes: combinedNotes });
+  }
+  return { vendorData, allImageBlocks };
+}
+
+// ── Refresh analysis ──
+async function refreshAnalysis() {
+  const apiKey = getApiKey();
+  if (!apiKey) { showError('Please enter your Anthropic API key first.'); return; }
+  const activeVendors = vendors.filter(v => v.quoteFiles.length > 0);
+  if (activeVendors.length === 0) return;
+
+  const btn = document.getElementById('refresh-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Refreshing…'; }
+  showProgress('ps-extract', 'Refreshing analysis…', 'Reading original + supplemental documents');
+
+  try {
+    const scopeText = await extractPdfText(scopeFiles[0]);
+    const { vendorData, allImageBlocks } = await gatherVendorData(activeVendors, recheckData);
+
+    showProgress('ps-send', 'Analysing with Claude AI…', 'Applying new information');
+
+    const prompt = buildPrompt(scopeText, vendorData);
+    const response = await callClaude(apiKey, prompt, allImageBlocks);
+
+    showProgress('ps-parse', 'Parsing results…', 'Almost done');
+
+    const analysis = parseResponse(response, vendorData.map(v => v.name));
+    analysis.timestamp = new Date().toISOString();
+    analysis.vendorNames = vendorData.map(v => v.name);
+
+    // Auto-resolve dismissed watch-outs where fee is now found
+    if (currentAnalysis) {
+      const prevMissingFee = (currentAnalysis.vendorSummaries || [])
+        .filter(v => !v.totalPrice || v.totalPrice === '—').map(v => v.name);
+      const nowHasFee = (analysis.vendorSummaries || [])
+        .filter(v => v.totalPrice && v.totalPrice !== '—').map(v => v.name);
+      prevMissingFee.forEach(name => {
+        if (nowHasFee.includes(name)) {
+          // Remove "No fee" watch-outs from dismissed set (they're now resolved)
+          dismissedWatchOuts.forEach(k => {
+            if (k.toLowerCase().includes('fee') || k.toLowerCase().includes('price')) {
+              dismissedWatchOuts.delete(k);
+            }
+          });
+        }
+      });
+    }
+
+    currentAnalysis = analysis;
+    lastUpdated = new Date();
+    saveToHistory(analysis);
+    renderResults(analysis);
+
+  } catch (err) {
+    showError('Refresh failed: ' + (err.message || 'Unknown error'));
+  } finally {
+    if (btn) { btn.disabled = false; btn.style.display = 'flex'; btn.textContent = '🔄 Refresh analysis'; }
+    document.getElementById('progress-overlay').classList.remove('show');
+  }
+}
+
+// ── Refresh button visibility ──
+function updateRefreshBtn() {
+  const btn = document.getElementById('refresh-btn');
+  const label = document.getElementById('last-updated-label');
+  if (!btn) return;
+  const hasData = recheckData.globalHints.trim() ||
+    Object.values(recheckData.vendorHints).some(h => h.trim()) ||
+    Object.values(recheckData.extraFiles).some(arr => arr.length > 0);
+  btn.style.display = hasData ? 'flex' : 'none';
+  if (label && lastUpdated) {
+    label.style.display = 'inline';
+    label.textContent = 'Last updated ' + lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+}
+
+// ── Dismiss watch-outs ──
+function dismissWatchOut(key) {
+  dismissedWatchOuts.add(key);
+  if (currentAnalysis) renderResults(currentAnalysis);
+}
+function restoreWatchOut(key) {
+  dismissedWatchOuts.delete(key);
+  if (currentAnalysis) renderResults(currentAnalysis);
+}
+
+// ── Recheck panel ──
+function renderRecheckPanel() {
+  const el = document.getElementById('recheck-panel');
+  if (!el || !currentAnalysis) return;
+  const vendorNames = currentAnalysis.vendorNames || [];
+  const vendorList = vendors.filter(v => vendorNames.includes(v.name));
+
+  let html = `<div class="recheck-panel">
+    <div class="recheck-header" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.rc-arrow').textContent=this.nextElementSibling.classList.contains('open')?'▲':'▼'">
+      <span>➕ Add more context for a better analysis</span>
+      <span class="rc-arrow">▼</span>
+    </div>
+    <div class="recheck-body">`;
+
+  vendorList.forEach(v => {
+    const extraCount = (recheckData.extraFiles[v.id] || []).length;
+    html += `<div class="recheck-vendor">
+      <div class="recheck-vendor-name">${esc(v.name)}</div>
+      <div class="drop-zone" style="padding:10px" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="addRecheckFiles(event,'${v.id}',true)">
+        <input type="file" accept="${ACCEPTED_TYPES}" multiple onchange="addRecheckFiles(event,'${v.id}',false)">
+        <div style="font-size:11px;color:var(--text2)">📎 Add more files ${extraCount > 0 ? `<strong style="color:var(--purp)">(${extraCount} added)</strong>` : ''} — PDFs, screenshots, Word docs</div>
+      </div>
+      <textarea class="recheck-hint" rows="2" placeholder="Add a hint for ${esc(v.name)} e.g. 'Fee schedule is on page 34'" onchange="recheckData.vendorHints['${v.id}']=this.value;updateRefreshBtn()">${recheckData.vendorHints[v.id] || ''}</textarea>
+    </div>`;
+  });
+
+  html += `<div class="global-hints-section">
+    <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">Global context (applies to all vendors)</div>
+    <textarea class="recheck-hint" rows="2" placeholder="e.g. 'Ignore any pricing marked as indicative'" onchange="recheckData.globalHints=this.value;updateRefreshBtn()">${recheckData.globalHints}</textarea>
+  </div>
+  </div></div>`;
+
+  el.innerHTML = html;
+}
+
+function addRecheckFiles(e, vendorId, isDrop) {
+  e.preventDefault();
+  const files = isDrop ? Array.from(e.dataTransfer.files) : Array.from(e.target.files);
+  if (!recheckData.extraFiles[vendorId]) recheckData.extraFiles[vendorId] = [];
+  recheckData.extraFiles[vendorId].push(...files);
+  if (!isDrop) e.target.value = '';
+  updateRefreshBtn();
+  renderRecheckPanel();
 }
 
 function buildPrompt(scopeText, vendorData) {
@@ -1241,7 +1433,9 @@ ${scopeText}
   vendorData.forEach((v, i) => {
     prompt += `\nVENDOR ${i+1}: ${v.name}\n`;
     if (v.notes) prompt += `Vendor notes from user: ${v.notes}\n`;
-    if (v.feeSummary) prompt += `PRIORITY: Check this section first for fee totals, pricing tables, and cost summaries (extracted from the final pages of this vendor's document):\n${v.feeSummary}\n\n`;
+    if (v.feeSummary) {
+      prompt += `PRIORITY: Check this section first for fee totals, pricing tables, and cost summaries (extracted from the final pages of this vendor's document):\n${v.feeSummary}\n\n`;
+    }
     prompt += `Full Quote Document:\n${v.quoteText}\n`;
     if (v.tcsText) prompt += `T&Cs:\n${v.tcsText}\n`;
   });
@@ -1265,7 +1459,7 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
   ],
   "vendorSummaries": [
     {
-      "name": "verdor name",
+      "name": "vendor name",
       "totalPrice": "$X,XXX (or 'See breakdown')",
       "coverageScore": "X/Y items covered",
       "watchOuts": ["watch out 1", "watch out 2"],
@@ -1407,12 +1601,18 @@ function renderResults(analysis) {
         </div>
         <div class="vendor-stat"><span class="vs-label">Total price</span><span class="vs-val">${esc(v.totalPrice || '—')}</span></div>
         <div class="vendor-stat"><span class="vs-label">Coverage</span><span class="vs-val">${esc(v.coverageScore || '—')}</span></div>`;
-
       if (v.watchOuts && v.watchOuts.length > 0) {
-        html += `<div class="vendor-watchouts">
-          <div class="watchout-label">⚠ Watch-outs</div>
-          ${v.watchOuts.map(w => `<div class="watchout-item">${esc(w)}<.div>`).join('')}
-        </div>`;
+        html += `<div class="vendor-watchouts"><div class="watchout-label">⚠ Watch-outs</div>`;
+        v.watchOuts.forEach(w => {
+          const key = 'vendor:' + v.name + ':' + w;
+          const dismissed = dismissedWatchOuts.has(key);
+          const safeKey = key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+          html += `<div class="watchout-item" style="${dismissed ? 'opacity:0.38;text-decoration:line-through' : ''}">
+            <span style="flex:1">${esc(w)}</span>
+            <button style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--text3);padding:0 0 0 6px;flex-shrink:0" onclick="${dismissed ? `restoreWatchOut('${safeKey}')` : `dismissWatchOut('${safeKey}')`}">${dismissed ? '↔' : '𝑕'}</button>
+          </div>`;
+        });
+        html += `</div>`;
       }
 
       if (v.tcsRisks && v.tcsRisks.length > 0) {
@@ -1430,11 +1630,18 @@ function renderResults(analysis) {
     html += `</div></div>`;
   }
 
-  // Overall watch-outs
+  // Overall watch-outs (with dismiss)
   if (analysis.overallWatchOuts && analysis.overallWatchOuts.length > 0) {
     html += `<div class="overall-watchouts"><div class="section-title">⚠ Overall watch-outs</div>`;
     analysis.overallWatchOuts.forEach(w => {
-      html += `<div class="watchout-block"><div class="wo-icon">⚠</div><div>${esc(w)}</div></div>`;
+      const key = 'overall:' + w;
+      const dismissed = dismissedWatchOuts.has(key);
+      const safeKey = key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      html += `<div class="watchout-block${dismissed ? ' dismissed' : ''}">
+        <div class="wo-icon">⚠</div>
+        <div style="flex:1">${esc(w)}</div>
+        <button class="wo-dismiss-btn" onclick="${dismissed ? `restoreWatchOut('${safeKey}')` : `dismissWatchOut('${safeKey}')`}">${dismissed ? 'Restore' : 'Dismiss'}</button>
+      </div>`;
     });
     html += `</div>`;
   }
@@ -1449,6 +1656,15 @@ function renderResults(analysis) {
   }
 
   container.innerHTML = html;
+
+  // Update last-updated label + refresh button
+  const label = document.getElementById('last-updated-label');
+  if (label && lastUpdated) {
+    label.style.display = 'inline';
+    label.textContent = 'Last updated ' + lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  updateRefreshBtn();
+  renderRecheckPanel();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1500,7 +1716,7 @@ function loadFromHistory(index) {
 // ═══════════════════════════════════════════════════════
 function showProgress(activeStep, title, sub) {
   const overlay = document.getElementById('progress-overlay');
-  overlay.classList.add('sanw');
+  overlay.classList.add('show');
   document.getElementById('progress-title').textContent = title;
   document.getElementById('progress-sub').textContent   = sub;
   ['ps-extract','ps-send','ps-parse'].forEach(id => {
@@ -1520,10 +1736,10 @@ function showProgress(activeStep, title, sub) {
 function showError(msg) {
   const el = document.getElementById('error-msg');
   el.textContent = '⚠ ' + msg;
-  el.classList.add('sanw');
+  el.classList.add('show');
 }
 function hideError() {
-  document.getElementById('error-msg').classList.remove('sanw');
+  document.getElementById('error-msg').classList.remove('show');
 }
 
 function newAnalysis() {
