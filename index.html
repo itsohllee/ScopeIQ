@@ -201,6 +201,9 @@ nav {
 .api-panel-text strong { font-size: 13px; font-weight: 700; color: var(--purp); }
 .api-panel-text p { font-size: 12px; color: var(--text2); margin-top: 2px; }
 .api-panel-input-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.provider-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+.provider-tab { padding: 5px 14px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surface); color: var(--text2); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: 'Syne', sans-serif; }
+.provider-tab.active { background: var(--purp); color: #fff; border-color: var(--purp); }
 .api-key-input {
   background: var(--surface);
   border: 1px solid var(--border2);
@@ -836,13 +839,19 @@ nav {
     <div class="api-panel" id="api-panel">
       <div class="api-panel-icon">🔑</div>
       <div class="api-panel-text">
-        <strong>Anthropic API Key required</strong>
-        <p>Your key stays in this browser — never sent anywhere else. Get one free at console.anthropic.com</p>
+        <strong>AI Provider</strong>
+        <p id="api-panel-hint">Your key stays in this browser — never sent anywhere else.</p>
       </div>
-      <div class="api-panel-input-row">
-        <input type="password" class="api-key-input" id="api-key-input" placeholder="sk-ant-api03-...">
-        <button class="btn-save-key" onclick="saveApiKey()">Save key</button>
-        <div class="key-saved-badge" id="key-saved-badge">✓ Key saved</div>
+      <div style="width:100%">
+        <div class="provider-tabs">
+          <button class="provider-tab active" id="tab-anthropic" onclick="selectProvider('anthropic')">Anthropic</button>
+          <button class="provider-tab" id="tab-gemini" onclick="selectProvider('gemini')">Google Gemini <span style="font-size:10px;opacity:0.75">(free)</span></button>
+        </div>
+        <div class="api-panel-input-row">
+          <input type="password" class="api-key-input" id="api-key-input" placeholder="sk-ant-api03-...">
+          <button class="btn-save-key" onclick="saveApiKey()">Save key</button>
+          <div class="key-saved-badge" id="key-saved-badge">✓ Key saved</div>
+        </div>
       </div>
     </div>
 
@@ -931,9 +940,14 @@ nav {
 // ═══════════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════════
-const STORAGE_KEY   = 'scopeiq_key';
-const HISTORY_KEY   = 'scopeiq_analyses';
-const THEME_KEY     = 'scopeiq_theme';
+const STORAGE_KEY          = 'scopeiq_key';
+const STORAGE_ANTHROPIC    = 'scopeiq_anthropic_key';
+const STORAGE_GEMINI       = 'scopeiq_gemini_key';
+const STORAGE_PROVIDER     = 'scopeiq_provider';
+const HISTORY_KEY          = 'scopeiq_analyses';
+const THEME_KEY            = 'scopeiq_theme';
+
+let currentProvider = localStorage.getItem(STORAGE_PROVIDER) || 'anthropic';
 
 let scopeFiles    = [];
 let vendors       = [];   // [{id, name, quoteFiles, tcsFiles, notes}]
@@ -964,31 +978,59 @@ function showView(name) {
   if (name === 'history') renderHistory();
 }
 
-// ── API Key ──
+// ── Provider & API Key ──
+const PROVIDER_META = {
+  anthropic: {
+    placeholder: 'sk-ant-api03-...',
+    hint: 'Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--purp)">console.anthropic.com</a>'
+  },
+  gemini: {
+    placeholder: 'AIzaSy...',
+    hint: 'Free — get a key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--purp)">aistudio.google.com/apikey</a> (no credit card needed)'
+  }
+};
+
 function sanitizeApiKey(val) {
-  // Strip any non-printable or non-ASCII characters that would break HTTP headers
   return val.replace(/[^\x20-\x7E]/g, '').trim();
+}
+
+function selectProvider(p) {
+  currentProvider = p;
+  localStorage.setItem(STORAGE_PROVIDER, p);
+  document.getElementById('tab-anthropic').classList.toggle('active', p === 'anthropic');
+  document.getElementById('tab-gemini').classList.toggle('active', p === 'gemini');
+  const meta = PROVIDER_META[p];
+  document.getElementById('api-key-input').placeholder = meta.placeholder;
+  document.getElementById('api-panel-hint').innerHTML = meta.hint;
+  const saved = getApiKey();
+  const badge = document.getElementById('key-saved-badge');
+  const input = document.getElementById('api-key-input');
+  if (saved) {
+    input.value = '●'.repeat(20);
+    badge.style.display = 'block';
+  } else {
+    input.value = '';
+    badge.style.display = 'none';
+  }
 }
 
 function saveApiKey() {
   const val = sanitizeApiKey(document.getElementById('api-key-input').value);
   if (!val) return;
-  localStorage.setItem(STORAGE_KEY, val);
+  const storageKey = currentProvider === 'gemini' ? STORAGE_GEMINI : STORAGE_ANTHROPIC;
+  localStorage.setItem(storageKey, val);
   document.getElementById('api-key-input').value = '●'.repeat(20);
   document.getElementById('key-saved-badge').style.display = 'block';
 }
 
 function getApiKey() {
-  return sanitizeApiKey(localStorage.getItem(STORAGE_KEY) || '');
+  const storageKey = currentProvider === 'gemini' ? STORAGE_GEMINI : STORAGE_ANTHROPIC;
+  return sanitizeApiKey(localStorage.getItem(storageKey) || '');
 }
 
 // Pre-fill if saved
 window.addEventListener('DOMContentLoaded', () => {
-  const key = getApiKey();
-  if (key) {
-    document.getElementById('api-key-input').value = '●'.repeat(20);
-    document.getElementById('key-saved-badge').style.display = 'block';
-  }
+  selectProvider(currentProvider);
   // Init with 3 vendors
   addVendor();
   addVendor();
@@ -1553,6 +1595,10 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
 }
 
 async function callClaude(apiKey, prompt, imageBlocks = []) {
+  if (currentProvider === 'gemini') {
+    return callGemini(apiKey, prompt, imageBlocks);
+  }
+  // ── Anthropic ──
   let content;
   if (imageBlocks.length === 0) {
     content = prompt;
@@ -1583,6 +1629,33 @@ async function callClaude(apiKey, prompt, imageBlocks = []) {
   }
   const data = await res.json();
   return data.content[0].text;
+}
+
+async function callGemini(apiKey, prompt, imageBlocks = []) {
+  // ── Google Gemini 2.0 Flash (free tier) ──
+  const parts = [];
+  for (const img of imageBlocks) {
+    parts.push({ text: `[Image from ${img.label}:]` });
+    parts.push({ inlineData: { mimeType: img.mediaType, data: img.data } });
+  }
+  parts.push({ text: prompt });
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts }],
+        generationConfig: { maxOutputTokens: 4096 }
+      })
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  return data.candidates[0].content.parts[0].text;
 }
 
 function parseResponse(text, vendorNames) {
