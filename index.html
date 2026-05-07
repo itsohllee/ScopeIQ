@@ -1645,6 +1645,7 @@ async function callGemini(apiKey, prompt, imageBlocks = []) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        systemInstruction: { parts: [{ text: 'You must respond with ONLY a raw JSON object. No markdown, no code fences, no explanation. Just the JSON.' }] },
         contents: [{ parts }],
         generationConfig: { maxOutputTokens: 4096 }
       })
@@ -1659,8 +1660,9 @@ async function callGemini(apiKey, prompt, imageBlocks = []) {
 }
 
 function parseResponse(text, vendorNames) {
-  // Extract JSON from response
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  // Strip markdown code fences if present (Gemini sometimes wraps JSON)
+  const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('Could not parse AI response');
   try {
     return JSON.parse(jsonMatch[0]);
