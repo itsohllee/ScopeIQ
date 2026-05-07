@@ -965,8 +965,13 @@ function showView(name) {
 }
 
 // ── API Key ──
+function sanitizeApiKey(val) {
+  // Strip any non-printable or non-ASCII characters that would break HTTP headers
+  return val.replace(/[^\x20-\x7E]/g, '').trim();
+}
+
 function saveApiKey() {
-  const val = document.getElementById('api-key-input').value.trim();
+  const val = sanitizeApiKey(document.getElementById('api-key-input').value);
   if (!val) return;
   localStorage.setItem(STORAGE_KEY, val);
   document.getElementById('api-key-input').value = '●'.repeat(20);
@@ -974,7 +979,7 @@ function saveApiKey() {
 }
 
 function getApiKey() {
-  return localStorage.getItem(STORAGE_KEY) || '';
+  return sanitizeApiKey(localStorage.getItem(STORAGE_KEY) || '');
 }
 
 // Pre-fill if saved
