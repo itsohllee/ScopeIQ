@@ -775,6 +775,121 @@ nav {
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--purp); }
 
+/* ════════════════════════════════════════════════════════
+   Dark mode overrides — results page
+   ════════════════════════════════════════════════════════ */
+
+/* Override ok/miss vars for dark mode */
+[data-theme="dark"] {
+  --ok:   #4ade80;
+  --miss: #f87171;
+}
+
+/* 1. Comparison table wrapper & table */
+[data-theme="dark"] .rpt-table-wrap  { background: #141414; border-color: #2a2a2a; }
+[data-theme="dark"] .rpt-table       { background: #141414; }
+
+/* 2. Sticky header cells */
+[data-theme="dark"] .rpt-th-scope {
+  background: #141414;
+  border-bottom-color: #2a2a2a;
+}
+[data-theme="dark"] .rpt-th-vendor {
+  background: #141414;
+  border-bottom-color: #2a2a2a;
+  border-left-color: #2a2a2a;
+}
+[data-theme="dark"] .rpt-th-rec {
+  background: #141414 !important;
+  border-bottom-color: #2a2a2a !important;
+}
+
+/* 3. Executive summary box */
+[data-theme="dark"] .rpt-exec-box    { background: #141414; border-color: #2a2a2a; }
+[data-theme="dark"] .rpt-summary-text { color: #f0f0f0; }
+
+/* 4. Scope item column */
+[data-theme="dark"] .rpt-td-scope {
+  color: #cccccc;
+  background: #141414;
+  border-bottom-color: #2a2a2a;
+}
+
+/* 5. Vendor name */
+[data-theme="dark"] .rpt-vendor-name     { color: #ffffff; font-weight: 700; }
+[data-theme="dark"] .rpt-vendor-name-alt { color: #ffffff !important; font-weight: 700; }
+
+/* 6. Price */
+[data-theme="dark"] .rpt-vendor-price             { color: #ffffff; font-weight: 700; }
+[data-theme="dark"] .rpt-th-rec .rpt-vendor-price  { color: #9b8ffa; }
+
+/* 7. INCLUDED / PARTIAL / MISSING status */
+[data-theme="dark"] .rpt-cell-status.s-ok   { color: #4ade80; }
+[data-theme="dark"] .rpt-cell-status.s-warn { color: #fbbf24; }
+[data-theme="dark"] .rpt-cell-status.s-miss { color: #f87171; }
+[data-theme="dark"] .rpt-dot.dot-ok         { background: #4ade80; }
+[data-theme="dark"] .rpt-dot.dot-warn       { background: #fbbf24; }
+[data-theme="dark"] .rpt-dot.dot-miss       { background: #f87171; }
+
+/* 8. Item notes */
+[data-theme="dark"] .rpt-cell-note.note-ok   { color: #888888; }
+[data-theme="dark"] .rpt-cell-note.note-warn { color: #EF9F27; }
+[data-theme="dark"] .rpt-cell-note.note-miss { color: #f87171; }
+[data-theme="dark"] .rpt-cell-note.note-na   { color: #666666; }
+
+/* 9. Recommended vendor card */
+[data-theme="dark"] .rpt-rec-box  { background: #13102a; border: 1px solid #7c6dfa; }
+[data-theme="dark"] .rpt-rec-text { color: #c4bffa; }
+
+/* 10. Watch-outs section */
+[data-theme="dark"] .rpt-block-header-warn {
+  background: #1a1200;
+  color: #EF9F27;
+  border-bottom-color: #3a2800;
+}
+[data-theme="dark"] .rpt-block-header-warn ~ .rpt-list-item,
+[data-theme="dark"] .rpt-list-item-warn    { background: #1a1200; }
+[data-theme="dark"] .rpt-num-warn          { background: #EF9F27; color: #ffffff; }
+[data-theme="dark"] .rpt-watchout-row .rpt-td-scope { background: #1a1200; }
+[data-theme="dark"] .rpt-td-wo             { background: #1a1200; }
+[data-theme="dark"] .rpt-wo-label-cell     { color: #EF9F27; }
+[data-theme="dark"] .rpt-wo-num            { background: #EF9F27; color: #ffffff; }
+[data-theme="dark"] .rpt-wo-item           { color: #BA7517; }
+
+/* 11. Next steps section */
+[data-theme="dark"] .rpt-block-header-purp {
+  background: #13102a;
+  color: #9b8ffa;
+  border-bottom-color: #2a2060;
+}
+[data-theme="dark"] .rpt-block-header-purp ~ .rpt-list-item,
+[data-theme="dark"] .rpt-list-item-purp    { background: #13102a; color: #a78bfa; }
+[data-theme="dark"] .rpt-num-purp          { background: #7c6dfa; color: #ffffff; }
+
+/* 12. T&CS risk flags block border */
+[data-theme="dark"] .rpt-block { border-color: #2a2a2a; }
+
+/* 13. Scope item row stripes */
+[data-theme="dark"] .rpt-td-vendor {
+  background: #141414;
+  border-bottom-color: #2a2a2a;
+  border-left-color: #2a2a2a;
+}
+[data-theme="dark"] .rpt-table tbody tr:nth-child(even) .rpt-td-scope,
+[data-theme="dark"] .rpt-table tbody tr:nth-child(even) .rpt-td-vendor { background: #141414; }
+[data-theme="dark"] .rpt-table tbody tr:nth-child(odd)  .rpt-td-scope,
+[data-theme="dark"] .rpt-table tbody tr:nth-child(odd)  .rpt-td-vendor { background: #1a1a1a; }
+[data-theme="dark"] .rpt-td-rec       { background: rgba(124,109,250,0.07) !important; }
+[data-theme="dark"] .rpt-table tbody tr:nth-child(even) .rpt-td-rec { background: rgba(124,109,250,0.12) !important; }
+
+/* 14. Verification / warn banner */
+[data-theme="dark"] .warn-bar { background: #1a1200; border-color: #3a2800; }
+
+/* Extra: vendor badges & pills */
+[data-theme="dark"] .rpt-badge-miss { background: rgba(248,113,113,0.15); color: #f87171; }
+[data-theme="dark"] .rpt-badge-low  { background: rgba(74,222,128,0.12);  color: #4ade80; }
+[data-theme="dark"] .rpt-vh-pill    { background: rgba(124,109,250,0.15); color: #9b8ffa; }
+
 @media (max-width: 600px) {
   nav { padding: 12px 20px; }
   .hero { padding: 40px 20px; }
