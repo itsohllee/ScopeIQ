@@ -615,6 +615,28 @@ nav {
 .recheck-hint:focus { outline: none; border-color: var(--purp); }
 .global-hints-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
 
+/* ── Warning bar (incomplete info) ── */
+.warn-bar { background: rgba(239,159,39,0.07); border: 1px solid rgba(239,159,39,0.3); border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; }
+.warn-bar-hd { display: flex; align-items: center; gap: 10px; }
+.warn-bar-hd-title { font-size: 13px; font-weight: 700; color: var(--warn); flex: 1; }
+.warn-bar-close { background: none; border: none; font-size: 20px; line-height: 1; cursor: pointer; color: var(--text3); padding: 0; }
+.warn-bar-rows { margin-top: 8px; }
+.warn-bar-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid rgba(239,159,39,0.15); font-size: 13px; color: var(--text2); }
+.warn-bar-row-txt { flex: 1; }
+.btn-warn-recheck { display: inline-flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid rgba(239,159,39,0.4); color: var(--warn); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+.btn-warn-recheck:hover { background: rgba(239,159,39,0.1); }
+.btn-warn-recheck:disabled { opacity: 0.5; cursor: default; pointer-events: none; }
+.warn-bar-footer { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(239,159,39,0.15); flex-wrap: wrap; }
+.warn-bar-ask { flex: 1; min-width: 160px; display: flex; gap: 6px; }
+.warn-bar-input { flex: 1; border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 12px; background: var(--surface); color: var(--text); font-family: 'Syne',sans-serif; }
+.warn-bar-input::placeholder { color: var(--text3); }
+.warn-bar-input:focus { outline: none; border-color: var(--warn); }
+.btn-warn-ask { background: var(--warn); color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.btn-warn-ask:hover { filter: brightness(0.92); }
+.btn-warn-upload { display: inline-flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid var(--border); color: var(--text2); border-radius: 6px; padding: 7px 11px; font-size: 12px; cursor: pointer; white-space: nowrap; position: relative; overflow: hidden; }
+.btn-warn-upload input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
+.btn-warn-upload:hover { border-color: var(--warn); color: var(--warn); }
+
 /* ── History view ── */
 .history-empty {
   text-align: center;
@@ -1376,6 +1398,91 @@ function clearAllResolved() {
   renderResults(currentAnalysis);
 }
 
+// ── Warning bar (auto-shown when vendors have many missing items) ──
+let warnBarVendors = []; // vendor names that triggered the warning bar
+
+function buildWarnBar(analysis) {
+  const grid = analysis.coverageGrid || [];
+  const total = grid.length;
+  if (total === 0) return '';
+
+  const warnings = (analysis.vendorSummaries || []).map(v => {
+    const missing = grid.filter(row => {
+      const vd = (row.vendors || []).find(x => x.name === v.name);
+      return vd && vd.status === 'missing';
+    }).length;
+    return { name: v.name, missing };
+  }).filter(w => w.missing > 0 && w.missing / total >= 0.3);
+
+  if (warnings.length === 0) { warnBarVendors = []; return ''; }
+  warnBarVendors = warnings.map(w => w.name);
+
+  const rows = warnings.map(w => `
+    <div class="warn-bar-row">
+      <span style="color:var(--warn);flex-shrink:0;font-size:13px">⚠</span>
+      <span class="warn-bar-row-txt">${esc(w.name)} quote may not be fully read — ${w.missing} of ${total} scope items misting</span>
+      <button class="btn-warn-recheck" onclick="warnBarRecheck('${w.name.replace(/'/g,"\\'")}',this)">↻ Recheck</button>
+    </div>`).join('');
+
+  return `
+    <div class="warn-bar" id="warn-bar">
+      <div class="warn-bar-hd">
+        <span style="color:var(--warn);font-size:15px">⚠</span>
+        <span class="warn-bar-hd-title">Some information may be incomplete</span>
+        <button class="warn-bar-close" onclick="this.closest('.warn-bar').remove()">×</button>
+      </div>
+      <div class="warn-bar-rows">${rows}</div>
+      <div class="warn-bar-footer">
+        <div class="warn-bar-ask">
+          <input class="warn-bar-input" id="warn-bar-ask-input" placeholder="Ask AI to look for something specific…" onkeydown="if(event.key==='Enter')warnBarAskAi()" />
+          <button class="btn-warn-ask" onclick="warnBarAskAi()">↺ Ask AI</button>
+        </div>
+        <label class="btn-warn-upload">
+          <input type="file" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.webp" multiple onchange="warnBarUpload(event)">
+          📎 Upload additional docs
+        </label>
+      </div>
+    </div>`;
+}
+
+async function warnBarRecheck(vendorName, btn) {
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Rechecking…';
+  const v = vendors.find(v => v.name === vendorName);
+  if (v) {
+    const existing = recheckData.vendorHints[v.id] || '';
+    recheckData.vendorHints[v.id] = (existing ? existing + ' ' : '') +
+      'Re-read this document extremely carefully. Identify ALL scope items including those you may have missed. Check every page, appendix, and section for deliverables, tasks, and requirements.';
+  }
+  await refreshAnalysis();
+}
+
+function warnBarAskAi() {
+  const input = document.getElementById('warn-bar-ask-input');
+  const q = input?.value?.trim();
+  if (!q) return;
+  recheckData.globalHints = (recheckData.globalHints ? recheckData.globalHints + ' ' : '') + q;
+  input.value = '';
+  updateRefreshBtn();
+  refreshAnalysis();
+}
+
+function warnBarUpload(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  // Assign uploaded files to all warning vendors (or just first if only one)
+  const targets = warnBarVendors.length > 0
+    ? vendors.filter(v => warnBarVendors.includes(v.name))
+    : vendors.filter(v => v.quoteFiles.length > 0).slice(0, 1);
+  if (targets.length === 0) return;
+  targets.forEach(v => {
+    if (!recheckData.extraFiles[v.id]) recheckData.extraFiles[v.id] = [];
+    recheckData.extraFiles[v.id].push(...files);
+  });
+  updateRefreshBtn();
+  refreshAnalysis();
+}
+
 // ── Recheck panel ──
 function renderRecheckPanel() {
   const el = document.getElementById('recheck-panel');
@@ -1579,6 +1686,9 @@ function renderResults(analysis) {
   });
 
   let html = '';
+  // ── Warning bar (auto-shown when vendors have many missing items) ──
+  html += buildWarnBar(analysis);
+
 
   // ── Document header ──
   const scopeName = scopeFiles.length > 0 ? scopeFiles[0].name : 'Scope document';
