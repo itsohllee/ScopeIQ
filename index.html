@@ -890,6 +890,60 @@ nav {
 [data-theme="dark"] .rpt-badge-low  { background: rgba(74,222,128,0.12);  color: #4ade80; }
 [data-theme="dark"] .rpt-vh-pill    { background: rgba(124,109,250,0.15); color: #9b8ffa; }
 
+/* ═══════════════════════════════════════════════════════════
+   Dark mode overrides — home page / upload grid
+   ═══════════════════════════════════════════════════════════ */
+
+/* 2. Upload grid container */
+[data-theme="dark"] .ugrid-wrap { background: #141414; border-color: #2a2a2a; }
+
+/* 3. Column dividers */
+[data-theme="dark"] .ugrid-col  { border-right-color: #2a2a2a; }
+[data-theme="dark"] .ugrid-hdr  { border-bottom-color: #2a2a2a; }
+
+/* 4. Column header text */
+[data-theme="dark"] .ugrid-title { color: #888888; }
+
+/* 5. Vendor badge letters A/B/C */
+[data-theme="dark"] .ugrid-badge { background: #7c6dfa; color: #ffffff; }
+
+/* 6. Upload zones */
+[data-theme="dark"] .ugrid-drop { background: #1a1a1a; border-color: #3a3a3a; }
+[data-theme="dark"] .ugrid-drop:hover,
+[data-theme="dark"] .ugrid-drop.dragover { border-color: #7c6dfa; background: #16132a; }
+[data-theme="dark"] .ugrid-drop-icon svg { stroke: #7c6dfa; }
+[data-theme="dark"] .ugrid-drop-main { color: #ffffff; font-weight: 500; }
+[data-theme="dark"] .ugrid-drop-hint { color: #555555; }
+
+/* 8. Vendor notes textarea */
+[data-theme="dark"] .ugrid-notes { background: #1a1a1a; border-color: #2a2a2a; color: #ffffff; }
+[data-theme="dark"] .ugrid-notes::placeholder { color: #555555; }
+[data-theme="dark"] .ugrid-notes:focus        { border-color: #7c6dfa; }
+
+/* 9. AI Provider section */
+[data-theme="dark"] .api-panel            { background: #111111; border-color: #2a2a2a; }
+[data-theme="dark"] .ugrid-provider-label { color: #555555; }
+[data-theme="dark"] .provider-tab         { background: #1a1a1a; border-color: #2a2a2a; color: #888888; }
+[data-theme="dark"] .provider-tab.active  { background: #7c6dfa; border-color: #7c6dfa; color: #ffffff; }
+
+/* 10. Bottom bar */
+[data-theme="dark"] .upload-bottom-bar          { background: #0a0a0a; border-top-color: #2a2a2a; }
+[data-theme="dark"] .file-count-label            { color: #555555; }
+[data-theme="dark"] .run-btn                     { background: #7c6dfa; }
+[data-theme="dark"] .run-btn:hover:not(:disabled) { background: #6456e8; }
+
+/* 11. Add another vendor button */
+[data-theme="dark"] .add-vendor-btn       { background: #1a1a1a; border-color: #2a2a2a; color: #888888; }
+[data-theme="dark"] .add-vendor-btn:hover { border-color: #7c6dfa; color: #9b8ffa; background: #16132a; }
+
+/* 12. Optional scope / description text */
+[data-theme="dark"] .ugrid-scope-note { color: #666666; }
+
+/* Vendor name input & sublabels */
+[data-theme="dark"] .ugrid-vendor-name              { color: #f0f0f0; }
+[data-theme="dark"] .ugrid-vendor-name::placeholder { color: #555555; }
+[data-theme="dark"] .ugrid-sublabel                 { color: #555555; }
+
 @media (max-width: 600px) {
   nav { padding: 12px 20px; }
   .hero { padding: 40px 20px; }
