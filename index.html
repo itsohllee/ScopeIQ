@@ -545,6 +545,10 @@ nav {
 .rpt-vendor-price { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; line-height: 1.2; }
 .rpt-th-rec .rpt-vendor-price { color: #534AB7; }
 .rpt-vendor-meta { font-size: 11px; color: var(--text3); margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
+.rpt-vendor-history { font-size: 10px; color: var(--text3); margin-top: 5px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.rpt-vh-pill { background: var(--purp-ll); color: var(--purp); border-radius: 3px; padding: 2px 7px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.rpt-vh-pill.rec { background: rgba(29,158,117,0.12); color: var(--ok); }
+.rpt-vh-wo { font-size: 10px; color: var(--warn); margin-top: 4px; line-height: 1.45; font-style: italic; }
 .rpt-rec-box { background: #EEEDFE; border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
 .rpt-rec-label { display: inline-block; background: #534AB7; color: #fff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 4px; padding: 3px 8px; margin-bottom: 8px; }
 .rpt-rec-text { font-size: 12px; color: #3d3580; line-height: 1.6; }
@@ -1564,6 +1568,46 @@ function addRecheckFiles(e, vendorId, isDrop) {
   renderRecheckPanel();
 }
 
+// ── Vendor history helper ──────────────────────────────────────────────────
+function getVendorHistory(vendorName) {
+  const norm = n => (n || '').toLowerCase().trim();
+  const vn = norm(vendorName);
+  const history = getHistory();
+  const past = history.filter(a => (a.vendorNames || []).some(n => norm(n) === vn));
+  if (past.length === 0) return null;
+
+  let totalCovered = 0, totalItems = 0, recCount = 0;
+  const watchOutSet = new Map();
+
+  past.forEach(a => {
+    const grid = a.coverageGrid || [];
+    if (grid.length > 0) {
+      const covered = grid.filter(row => {
+        const vd = (row.vendors || []).find(x => norm(x.name) === vn);
+        return vd && (vd.status === 'covered' || vd.status === 'partial');
+      }).length;
+      totalCovered += covered;
+      totalItems   += grid.length;
+    }
+    if (norm(a.recommendedVendor) === vn) recCount++;
+    const vs = (a.vendorSummaries || []).find(v => norm(v.name) === vn);
+    (vs?.watchOuts || []).forEach(w => watchOutSet.set(w, (watchOutSet.get(w) || 0) + 1));
+  });
+
+  const recurringWOs = [...watchOutSet.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([text, count]) => ({ text, count }));
+
+  return {
+    count: past.length,
+    avgCovered: totalItems > 0 ? Math.round(totalCovered / past.length) : null,
+    avgTotal:   totalItems > 0 ? Math.round(totalItems   / past.length) : null,
+    recCount,
+    recurringWOs,
+  };
+}
+
 function buildPrompt(scopeText, vendorData) {
   const noScope = !scopeText || scopeText.trim().length < 20;
   let prompt = `You are an expert procurement analyst. Analyse the ${noScope ? 'vendor quotes' : 'scope of work and vendor quotes'} below, then return a JSON analysis.
@@ -1588,6 +1632,26 @@ ${noScope ? '[No scope provided — scope inferred from vendor documents above]'
     prompt += `Full Quote Document:\n${v.quoteText}\n`;
     if (v.tcsText) prompt += `T&Cs:\n${v.tcsText}\n`;
   });
+  // ── Inject historical context for known vendors ──────────────────────────
+  const historyLines = [];
+  vendorData.forEach(v => {
+    const vh = getVendorHistory(v.name);
+    if (!vh) return;
+    let line = `${v.name}: seen in ${vh.count} previous analysis(es).`;
+    if (vh.avgCovered !== null) line += ` Average coverage: ${vh.avgCovered}/${vh.avgTotal} scope items.`;
+    if (vh.recCount > 0) line += ` Was the recommended vendor in ${vh.recCount} of those.`;
+    if (vh.recurringWOs.length > 0) {
+      const recurring = vh.recurringWOs.filter(w => w.count > 1);
+      if (recurring.length > 0) {
+        line += ` Recurring watch-outs (appeared in multiple past analyses): ${recurring.map(w => '"' + w.text + '"').join('; ')}.`;
+      }
+    }
+    historyLines.push(line);
+  });
+  if (historyLines.length > 0) {
+    prompt += `\nHISTORICAL CONTEXT (from this user's previous analyses — use to identify patterns, flag recurring issues, and note improvements or regressions):\n${historyLines.join('\n')}\n`;
+  }
+
 
   prompt += `
 Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
@@ -1776,6 +1840,17 @@ function renderResults(analysis) {
         <div class="rpt-vendor-price">${esc(v.totalPrice && v.totalPrice !== '—' ? v.totalPrice : 'Price not provided')}</div>
         ${v.quoteDate ? `<div class="rpt-vendor-meta">📅 ${esc(v.quoteDate)}</div>` : ''}
         <div class="rpt-vendor-meta">🔍 ${coveredCount}/${coverageGrid.length}</div>
+        ${(() => {
+          const vh = getVendorHistory(v.name);
+          if (!vh) return '';
+          const avgStr = vh.avgCovered !== null ? ` · avg ${vh.avgCovered}/${vh.avgTotal} items` : '';
+          const recStr = vh.recCount > 0 ? `<span class="rpt-vh-pill rec">⭐ rec'd ${vh.recCount}×</span>` : '';
+          const recurring = vh.recurringWOs.filter(w => w.count > 1).slice(0, 2);
+          const woStr = recurring.length > 0
+            ? `<div class="rpt-vh-wo">⚠ Recurring: ${recurring.map(w => esc(w.text)).join(' · ')}</div>` : '';
+          return `<div class="rpt-vendor-history"><span class="rpt-vh-pill">📋 ${vh.count} past${avgStr}</span>${recStr}</div>${woStr}`;
+        })()}
+
         ${isRec ? `<div class="rpt-rec-box"><div class="rpt-rec-label">★ Recommended</div><div class="rpt-rec-text">${esc(analysis.recommendationReason || '')}</div></div>` : ''}
       </th>`;
     });
