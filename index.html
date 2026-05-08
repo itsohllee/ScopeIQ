@@ -518,41 +518,71 @@ nav {
 .rpt-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--purp); margin-bottom: 12px; }
 .rpt-summary-text { font-size: 14px; color: var(--text); line-height: 1.75; margin: 0; }
 .rpt-comparison-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); margin-bottom: 12px; }
-.rpt-table-wrap { overflow-x: auto; margin-bottom: 28px; border: 1px solid var(--border); border-radius: 12px; }
-.rpt-table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); }
-.rpt-th-scope { width: 190px; min-width: 150px; padding: 18px 18px 14px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); text-align: left; vertical-align: bottom; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 3; background: var(--surface); }
-.rpt-th-vendor { padding: 16px 20px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); min-width: 210px; position: sticky; top: 0; z-index: 2; background: var(--surface); }
-.rpt-th-rec { background: rgba(29,158,117,0.07); border-top: 3px solid var(--ok); }
-.rpt-vendor-badges { margin-bottom: 8px; display: flex; gap: 6px; flex-wrap: wrap; min-height: 22px; }
-.rpt-badge-miss { background: rgba(226,75,74,0.1); color: var(--miss); border: 1px solid rgba(226,75,74,0.25); border-radius: 5px; font-size: 10px; font-weight: 600; padding: 2px 7px; }
-.rpt-badge-low { background: rgba(29,158,117,0.12); color: var(--ok); border: 1px solid rgba(29,158,117,0.25); border-radius: 5px; font-size: 10px; font-weight: 600; padding: 2px 7px; }
-.rpt-vendor-name { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 3px; }
-.rpt-vendor-name-alt { color: var(--ok) !important; }
-.rpt-vendor-price { font-size: 12px; color: var(--text3); margin-bottom: 6px; }
+.rpt-table-wrap { overflow-x: auto; margin-bottom: 28px; border: 1px solid #e8e8e8; border-radius: 12px; background: #ffffff; }
+.rpt-table { width: 100%; border-collapse: collapse; font-size: 13px; background: #ffffff; }
+.rpt-th-scope {
+  width: 190px; min-width: 150px; padding: 18px 18px 14px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text3); text-align: left; vertical-align: bottom;
+  border-bottom: 1px solid #e8e8e8;
+  position: sticky; top: 0; z-index: 3; background: #ffffff;
+}
+.rpt-th-vendor {
+  padding: 16px 20px 14px; text-align: left; vertical-align: top;
+  border-bottom: 1px solid #e8e8e8; border-left: 1px solid #e8e8e8; min-width: 210px;
+  position: sticky; top: 0; z-index: 2; background: #ffffff;
+}
+.rpt-th-rec {
+  background: #ffffff !important;
+  box-shadow: -2px 0 0 0 #534AB7, 2px 0 0 0 #534AB7, 0 -2px 0 0 #534AB7;
+  border-bottom-color: #e8e8e8 !important;
+}
+.rpt-vendor-badges { margin-bottom: 8px; display: flex; gap: 6px; flex-wrap: wrap; min-height: 20px; }
+.rpt-badge-miss { background: #FFEBEE; color: #A32D2D; border-radius: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border: none; }
+.rpt-badge-low  { background: #E1F5EE; color: #0F6E56; border-radius: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border: none; }
+.rpt-vendor-name { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+.rpt-vendor-name-alt { color: #1a1a1a !important; }
+.rpt-vendor-price { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; line-height: 1.2; }
+.rpt-th-rec .rpt-vendor-price { color: #534AB7; }
 .rpt-vendor-meta { font-size: 11px; color: var(--text3); margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
-.rpt-rec-box { background: var(--purp); border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
-.rpt-rec-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); margin-bottom: 6px; }
-.rpt-rec-text { font-size: 12px; color: #fff; line-height: 1.6; }
-.rpt-td-scope { padding: 14px 18px; font-size: 13px; font-weight: 500; color: var(--text); border-bottom: 1px solid var(--border); vertical-align: top; background: var(--surface); }
-.rpt-td-vendor { padding: 14px 20px; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); vertical-align: top; background: var(--surface); }
-.rpt-table tr:last-child .rpt-td-scope, .rpt-table tr:last-child .rpt-td-vendor { border-bottom: none; }
-.rpt-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-top: 2px; }
+.rpt-rec-box { background: #EEEDFE; border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
+.rpt-rec-label { display: inline-block; background: #534AB7; color: #fff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 4px; padding: 3px 8px; margin-bottom: 8px; }
+.rpt-rec-text { font-size: 12px; color: #3d3580; line-height: 1.6; }
+.rpt-td-scope {
+  padding: 14px 18px; font-size: 13px; font-weight: 400; color: #333;
+  border-bottom: 1px solid #e8e8e8; vertical-align: top; background: #ffffff;
+}
+.rpt-td-vendor {
+  padding: 14px 20px; border-bottom: 1px solid #e8e8e8;
+  border-left: 1px solid #e8e8e8; vertical-align: top; background: #ffffff;
+}
+.rpt-table tr:last-child .rpt-td-scope,
+.rpt-table tr:last-child .rpt-td-vendor { border-bottom: none; }
+/* Alternating row stripes */
+.rpt-table tbody tr:nth-child(even) .rpt-td-scope,
+.rpt-table tbody tr:nth-child(even) .rpt-td-vendor { background: #f8f8f8; }
+.rpt-table tbody tr:nth-child(odd) .rpt-td-scope,
+.rpt-table tbody tr:nth-child(odd) .rpt-td-vendor { background: #ffffff; }
+.rpt-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-top: 3px; }
 .rpt-dot.dot-ok { background: var(--ok); }
 .rpt-dot.dot-warn { background: var(--warn); }
 .rpt-dot.dot-miss { background: var(--miss); }
 .rpt-dot.dot-na { background: var(--border2); }
-.rpt-cell-status { display: flex; align-items: flex-start; gap: 7px; font-size: 13px; font-weight: 600; color: var(--text2); }
+.rpt-cell-status { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; font-weight: 600; color: var(--text2); }
 .rpt-cell-status.s-ok  { color: var(--ok); }
 .rpt-cell-status.s-warn { color: var(--warn); }
 .rpt-cell-status.s-miss { color: var(--miss); }
 .rpt-cell-status.s-na  { color: var(--text3); }
-.rpt-td-rec { background: rgba(29,158,117,0.03) !important; }
-.rpt-cell-note { font-size: 11px; color: var(--text2); margin-top: 5px; line-height: 1.55; padding-left: 17px; }
+.rpt-td-rec { background: rgba(83,74,183,0.025) !important; box-shadow: -2px 0 0 0 #534AB7, 2px 0 0 0 #534AB7; }
+.rpt-table tbody tr:nth-child(even) .rpt-td-rec { background: rgba(83,74,183,0.05) !important; }
+.rpt-table tr:last-child .rpt-td-rec { box-shadow: -2px 0 0 0 #534AB7, 2px 0 0 0 #534AB7, 0 2px 0 0 #534AB7; }
+.rpt-cell-note { font-size: 11px; color: var(--text3); margin-top: 4px; line-height: 1.5; padding-left: 15px; }
 .rpt-watchout-row .rpt-td-scope { background: rgba(239,159,39,0.05); }
 .rpt-td-wo { background: rgba(239,159,39,0.03); padding: 14px 20px; }
 .rpt-wo-label-cell { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #c07000; }
 .rpt-wo-item { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--text2); margin-bottom: 8px; line-height: 1.55; }
 .rpt-wo-item:last-child { margin-bottom: 0; }
+.rpt-wo-num { min-width: 20px; height: 20px; background: rgba(239,159,39,0.18); color: #c07000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
 .rpt-wo-num { min-width: 20px; height: 20px; background: rgba(239,159,39,0.18); color: #c07000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
 .rpt-block { margin-bottom: 24px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
 .rpt-block-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
