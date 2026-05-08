@@ -710,7 +710,7 @@ nav {
   <div class="hero">
     <div class="hero-tag">Vendor Quote Analyser</div>
     <h1>Upload quotes.<br>Get clarity.</h1>
-    <p>Upload your scope brief and vendor quotes — ScopeIQ reads everything and tells you which vendor to pick and why.</p>
+    <p>Upload vendor quotes and an optional scope brief — ScopeIQ reads everything and tells you which vendor to pick and why. No brief? We'll reverse-engineer the scope from the quotes.</p>
     <div class="hero-badges">
       <div class="hero-badge">📄 PDF extraction</div>
       <div class="hero-badge">🤖 Claude AI</div>
@@ -743,8 +743,8 @@ nav {
 
     <!-- Scope brief -->
     <div class="upload-block">
-      <div class="upload-block-title">Scope / Brief</div>
-      <div class="upload-block-sub">The job description or scope document. PDF or text.</div>
+      <div class="upload-block-title">Scope / Brief <span style="font-size:10px;font-weight:500;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle;">optional</span></div>
+      <div class="upload-block-sub">Upload a brief or scope doc — or skip it and we'll reverse-engineer the scope from the quotes.</div>
       <div class="drop-zone" id="scope-drop" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'scope')">
         <input type="file" id="scope-file" accept=".pdf,.txt,.doc,.docx" onchange="handleFileInput(event,'scope')">
         <div class="drop-icon">📄</div>
@@ -1158,16 +1158,13 @@ async function extractPdfText(file) {
 async function runAnalysis() {
   const apiKey = getApiKey();
   if (!apiKey) { showError('Please enter your Anthropic API key first.'); return; }
-  if (scopeFiles.length === 0) { showError('Please upload a scope / brief document.'); return; }
-  const activeVendors = vendors.filter(v => v.quoteFiles.length > 0);
-  if (activeVendors.length === 0) { showError('Please upload at least one vendor quote file.'); return; }
 
   hideError();
   document.getElementById('analyse-btn').disabled = true;
   showProgress('ps-extract', 'Reading documents…', 'Extracting content from your files');
 
   try {
-    const scopeText = await extractPdfText(scopeFiles[0]);
+    const scopeText = scopeFiles.length > 0 ? await extractPdfText(scopeFiles[0]) : '';
     const { vendorData, allImageBlocks } = await gatherVendorData(activeVendors, recheckData);
 
     showProgress('ps-send', 'Analysing with Claude AI…', 'Reading all documents and comparing vendors');
@@ -1248,7 +1245,7 @@ async function refreshAnalysis() {
   showProgress('ps-extract', 'Refreshing analysis…', 'Reading original + supplemental documents');
 
   try {
-    const scopeText = await extractPdfText(scopeFiles[0]);
+    const scopeText = scopeFiles.length > 0 ? await extractPdfText(scopeFiles[0]) : '';
     const { vendorData, allImageBlocks } = await gatherVendorData(activeVendors, recheckData);
 
     showProgress('ps-send', 'Analysing with Claude AI…', 'Applying new information');
@@ -1425,15 +1422,17 @@ function addRecheckFiles(e, vendorId, isDrop) {
 }
 
 function buildPrompt(scopeText, vendorData) {
-  let prompt = `You are an expert procurement analyst. Analyse the scope of work and vendor quotes below, then return a JSON analysis.
+  const noScope = !scopeText || scopeText.trim().length < 20;
+  let prompt = `You are an expert procurement analyst. Analyse the ${noScope ? 'vendor quotes' : 'scope of work and vendor quotes'} below, then return a JSON analysis.
 
 IMPORTANT INSTRUCTIONS:
 - Fee and pricing information is often found near the END of proposal documents — in appendices, schedules, or fee summary pages. Search the entire document thoroughly including the final pages before concluding that no fee is provided.
 - Where a PRIORITY fee section is provided below, check it first — it contains the last pages of the document where pricing tables most commonly appear.
 - If you find a fee anywhere in the document, always include it in the totalPrice field. Do not leave totalPrice null if any dollar amount is mentioned.
+${noScope ? `- NO SCOPE DOCUMENT WAS PROVIDED. You must reverse-engineer the scope from the vendor quotes: read all vendor documents and identify every deliverable, phase, task, and requirement they address. Compile these into a comprehensive scope item list and use it as the basis for your coverageGrid. In the executiveSummary, note that the scope was inferred from the vendor proposals rather than a supplied brief.` : ''}
 
 SCOPE / BRIEF:
-${scopeText}
+${noScope ? '[No scope provided — scope inferred from vendor documents above]' : scopeText}
 
 `;
   vendorData.forEach((v, i) => {
