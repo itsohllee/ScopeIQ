@@ -522,11 +522,12 @@ nav {
 .rpt-table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); }
 .rpt-th-scope { width: 190px; min-width: 150px; padding: 18px 18px 14px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); text-align: left; vertical-align: bottom; border-bottom: 1px solid var(--border); }
 .rpt-th-vendor { padding: 16px 20px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); min-width: 210px; }
-.rpt-th-rec { border-top: 3px solid var(--purp); }
+.rpt-th-rec { background: rgba(29,158,117,0.07); border-top: 3px solid var(--ok); }
 .rpt-vendor-badges { margin-bottom: 8px; display: flex; gap: 6px; flex-wrap: wrap; min-height: 22px; }
-.rpt-badge-miss { background: rgba(239,159,39,0.15); color: #c07000; border: 1px solid rgba(239,159,39,0.35); border-radius: 5px; font-size: 10px; font-weight: 600; padding: 2px 7px; }
-.rpt-badge-low { background: rgba(67,160,71,0.12); color: var(--ok); border: 1px solid rgba(67,160,71,0.25); border-radius: 5px; font-size: 10px; font-weight: 600; padding: 2px 7px; }
+.rpt-badge-miss { background: rgba(226,75,74,0.1); color: var(--miss); border: 1px solid rgba(226,75,74,0.25); border-radius: 5px; font-size: 10px; font-weight: 600; padding: 2px 7px; }
+.rpt-badge-low { background: rgba(29,158,117,0.12); color: var(--ok); border: 1px solid rgba(29,158,117,0.25); border-radius: 5px; font-size: 10px; font-weight: 600; padding: 2px 7px; }
 .rpt-vendor-name { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 3px; }
+.rpt-vendor-name-alt { color: var(--ok) !important; }
 .rpt-vendor-price { font-size: 12px; color: var(--text3); margin-bottom: 6px; }
 .rpt-vendor-meta { font-size: 11px; color: var(--text3); margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
 .rpt-rec-box { background: var(--purp); border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
@@ -538,9 +539,14 @@ nav {
 .rpt-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-top: 2px; }
 .rpt-dot.dot-ok { background: var(--ok); }
 .rpt-dot.dot-warn { background: var(--warn); }
-.rpt-dot.dot-miss { background: var(--border2); }
+.rpt-dot.dot-miss { background: var(--miss); }
 .rpt-dot.dot-na { background: var(--border2); }
-.rpt-cell-status { display: flex; align-items: flex-start; gap: 7px; font-size: 13px; font-weight: 600; color: var(--text); }
+.rpt-cell-status { display: flex; align-items: flex-start; gap: 7px; font-size: 13px; font-weight: 600; color: var(--text2); }
+.rpt-cell-status.s-ok  { color: var(--ok); }
+.rpt-cell-status.s-warn { color: var(--warn); }
+.rpt-cell-status.s-miss { color: var(--miss); }
+.rpt-cell-status.s-na  { color: var(--text3); }
+.rpt-td-rec { background: rgba(29,158,117,0.03) !important; }
 .rpt-cell-note { font-size: 11px; color: var(--text2); margin-top: 5px; line-height: 1.55; padding-left: 17px; }
 .rpt-watchout-row .rpt-td-scope { background: rgba(239,159,39,0.05); }
 .rpt-td-wo { background: rgba(239,159,39,0.03); padding: 14px 20px; }
@@ -553,7 +559,9 @@ nav {
 .rpt-block-header-warn { background: rgba(239,159,39,0.1); color: #a06000; border-bottom: 1px solid rgba(239,159,39,0.2); }
 .rpt-block-header-purp { background: var(--purp-ll); color: var(--purp); border-bottom: 1px solid var(--purp-l); }
 .rpt-block-count { font-size: 13px; font-weight: 700; }
-.rpt-list-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px 18px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); line-height: 1.65; background: var(--surface); }
+.rpt-list-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px 18px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); line-height: 1.65; }
+.rpt-list-item-warn { background: rgba(239,159,39,0.04); }
+.rpt-list-item-purp { background: rgba(83,74,183,0.04); }
 .rpt-list-item:last-child { border-bottom: none; }
 .rpt-item-num { min-width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
 .rpt-num-warn { background: rgba(239,159,39,0.18); color: #a06000; }
@@ -1618,10 +1626,10 @@ function renderResults(analysis) {
           ${isLow ? `<span class="rpt-badge-low">↓ Lowest</span>` : ''}
           ${missingCount > 0 ? `<span class="rpt-badge-miss">${missingCount} missing</span>` : ''}
         </div>
-        <div class="rpt-vendor-name">${esc(v.name)}</div>
+        <div class="rpt-vendor-name ${!isRec ? 'rpt-vendor-name-alt' : ''}">${esc(v.name)}</div>
         <div class="rpt-vendor-price">${esc(v.totalPrice && v.totalPrice !== '—' ? v.totalPrice : 'Price not provided')}</div>
         ${v.quoteDate ? `<div class="rpt-vendor-meta">📅 ${esc(v.quoteDate)}</div>` : ''}
-        <div class="rpt-vendor-meta">🔍 ${esc(v.coverageScore || coveredCount + '/' + coverageGrid.length)}</div>
+        <div class="rpt-vendor-meta">🔍 ${coveredCount}/${coverageGrid.length}</div>
         ${isRec ? `<div class="rpt-rec-box"><div class="rpt-rec-label">★ Recommended</div><div class="rpt-rec-text">${esc(analysis.recommendationReason || '')}</div></div>` : ''}
       </th>`;
     });
@@ -1631,12 +1639,14 @@ function renderResults(analysis) {
     coverageGrid.forEach(row => {
       html += `<tr><td class="rpt-td-scope">${esc(row.scopeItem)}</td>`;
       vendorSummaries.forEach(v => {
+        const isRecV = v.name === recName;
         const vData = (row.vendors || []).find(x => x.name === v.name);
         const status = vData?.status || 'na';
         const dotCls = {covered:'dot-ok', partial:'dot-warn', missing:'dot-miss', na:'dot-na'}[status] || 'dot-na';
+        const txtCls = {covered:'s-ok', partial:'s-warn', missing:'s-miss', na:'s-na'}[status] || 's-na';
         const label = {covered:'Included', partial:'Partial', missing:'—', na:'—'}[status] || '—';
-        html += `<td class="rpt-td-vendor">
-          <div class="rpt-cell-status"><span class="rpt-dot ${dotCls}"></span>${label}</div>
+        html += `<td class="rpt-td-vendor ${isRecV ? 'rpt-td-rec' : ''}">
+          <div class="rpt-cell-status ${txtCls}"><span class="rpt-dot ${dotCls}"></span>${label}</div>
           ${vData?.note ? `<div class="rpt-cell-note">${esc(vData.note)}</div>` : ''}
         </td>`;
       });
@@ -1648,7 +1658,7 @@ function renderResults(analysis) {
     if (hasVendorWO) {
       html += `<tr class="rpt-watchout-row"><td class="rpt-td-scope rpt-wo-label-cell">⚠ Watch-outs</td>`;
       vendorSummaries.forEach(v => {
-        html += `<td class="rpt-td-vendor rpt-td-wo">`;
+        html += `<td class="rpt-td-vendor rpt-td-wo ${v.name === recName ? 'rpt-td-rec' : ''}">`;
         (v.watchOuts || []).forEach((w, i) => {
           html += `<div class="rpt-wo-item"><span class="rpt-wo-num">${i+1}</span>${esc(w)}</div>`;
         });
@@ -1677,7 +1687,7 @@ function renderResults(analysis) {
         <span class="rpt-block-count">${analysis.overallWatchOuts.length}</span>
       </div>`;
     analysis.overallWatchOuts.forEach((w, i) => {
-      html += `<div class="rpt-list-item">
+      html += `<div class="rpt-list-item rpt-list-item-warn">
         <span class="rpt-item-num rpt-num-warn">${i+1}</span>
         <span>${esc(w)}</span>
       </div>`;
@@ -1693,7 +1703,7 @@ function renderResults(analysis) {
         <span class="rpt-block-count">${analysis.nextSteps.length}</span>
       </div>`;
     analysis.nextSteps.forEach((step, i) => {
-      html += `<div class="rpt-list-item">
+      html += `<div class="rpt-list-item rpt-list-item-purp">
         <span class="rpt-item-num rpt-num-purp">${i+1}</span>
         <span>${esc(step)}</span>
       </div>`;
