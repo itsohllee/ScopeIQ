@@ -448,257 +448,135 @@ nav {
 
 /* ── Results view ── */
 .results-hero {
-  background: var(--purp);
-  padding: 40px;
-  position: relative;
-  overflow: hidden;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
-.results-hero::before {
-  content: '';
-  position: absolute;
-  top: -40px; right: -40px;
-  width: 260px; height: 260px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.05);
-}
-.results-meta { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
-.results-title { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 8px; position: relative; z-index: 1; }
-.results-sub { font-size: 14px; color: rgba(255,255,255,0.65); position: relative; z-index: 1; }
-.results-actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; position: relative; z-index: 1; }
+.results-meta { display: none; }
+.results-title { display: none; }
+.results-sub { display: none; }
+.results-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; width: 100%; }
 .btn-new-analysis {
-  background: #fff;
-  color: var(--purp);
+  background: var(--purp);
+  color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 9px 18px;
+  padding: 8px 16px;
   font-family: 'Syne', sans-serif;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.2s;
 }
-.btn-new-analysis:hover { opacity: 0.9; }
+.btn-new-analysis:hover { opacity: 0.85; }
 .btn-ghost {
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.85);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 9px 18px;
+  padding: 8px 16px;
   font-family: 'Syne', sans-serif;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
 }
-.btn-ghost:hover { background: rgba(255,255,255,0.2); }
-
-/* ── Recommendation banner ── */
-.recommendation {
-  background: var(--purp-ll);
-  border: 2px solid var(--purp);
-  border-radius: 12px;
-  padding: 22px 26px;
-  margin-bottom: 28px;
-  position: relative;
-  overflow: hidden;
-}
-.recommendation::before {
-  content: '';
-  position: absolute;
-  top: -20px; right: -20px;
-  width: 100px; height: 100px;
-  border-radius: 50%;
-  background: var(--purp-l);
-}
-.rec-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--purp);
-  margin-bottom: 6px;
-}
-.rec-name { font-size: 24px; font-weight: 800; color: var(--purp); margin-bottom: 8px; position: relative; z-index: 1; }
-.rec-reason { font-size: 13px; color: var(--text2); max-width: 640px; position: relative; z-index: 1; }
-
-/* ── Coverage grid ── */
-.coverage-section { margin-bottom: 32px; }
-
-.section-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--purp);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.coverage-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--surface);
-  border-radius: 10px;
-  overflow: hidden;
+.btn-ghost:hover { background: var(--border); }
+.btn-pdf {
+  background: var(--surface2);
+  color: var(--text2);
   border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-family: 'Syne', sans-serif;
   font-size: 12px;
-}
-.coverage-table th {
-  background: var(--purp);
-  color: #fff;
-  padding: 11px 14px;
-  text-align: left;
   font-weight: 600;
-  font-size: 11px;
+  cursor: pointer;
+  margin-left: auto;
+  transition: background 0.2s;
 }
-.coverage-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-  vertical-align: top;
-}
-.coverage-table tr:last-child td { border-bottom: none; }
-.coverage-table tr:nth-child(even) td { background: var(--surface2); }
-.coverage-table tr:nth-child(even) td:first-child { background: var(--surface2); }
+.btn-pdf:hover { background: var(--border); }
 
-.status-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  flex-shrink: 0;
+/* ── Report layout ── */
+.rpt-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
 }
+.rpt-scope-info { display: flex; align-items: center; gap: 12px; }
+.rpt-scope-icon { font-size: 20px; }
+.rpt-scope-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 2px; }
+.rpt-scope-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.rpt-header-right { display: flex; align-items: center; gap: 12px; }
+.rpt-vendor-count { font-size: 12px; color: var(--text2); }
+.rpt-complete-badge { background: var(--purp); color: #fff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; border-radius: 6px; padding: 4px 10px; }
+.rpt-exec-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 24px; }
+.rpt-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--purp); margin-bottom: 12px; }
+.rpt-summary-text { font-size: 14px; color: var(--text); line-height: 1.75; margin: 0; }
+.rpt-comparison-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); margin-bottom: 12px; }
+.rpt-table-wrap { overflow-x: auto; margin-bottom: 28px; border: 1px solid var(--border); border-radius: 12px; }
+.rpt-table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); }
+.rpt-th-scope { width: 190px; min-width: 150px; padding: 18px 18px 14px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); text-align: left; vertical-align: bottom; border-bottom: 1px solid var(--border); }
+.rpt-th-vendor { padding: 16px 20px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); min-width: 210px; }
+.rpt-th-rec { border-top: 3px solid var(--purp); }
+.rpt-vendor-badges { margin-bottom: 8px; display: flex; gap: 6px; flex-wrap: wrap; min-height: 22px; }
+.rpt-badge-miss { background: rgba(239,159,39,0.15); color: #c07000; border: 1px solid rgba(239,159,39,0.35); border-radius: 5px; font-size: 10px; font-weight: 600; padding: 2px 7px; }
+.rpt-badge-low { background: rgba(67,160,71,0.12); color: var(--ok); border: 1px solid rgba(67,160,71,0.25); border-radius: 5px; font-size: 10px; font-weight: 600; padding: 2px 7px; }
+.rpt-vendor-name { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 3px; }
+.rpt-vendor-price { font-size: 12px; color: var(--text3); margin-bottom: 6px; }
+.rpt-vendor-meta { font-size: 11px; color: var(--text3); margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
+.rpt-rec-box { background: var(--purp); border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
+.rpt-rec-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); margin-bottom: 6px; }
+.rpt-rec-text { font-size: 12px; color: #fff; line-height: 1.6; }
+.rpt-td-scope { padding: 14px 18px; font-size: 13px; font-weight: 500; color: var(--text); border-bottom: 1px solid var(--border); vertical-align: top; background: var(--surface); }
+.rpt-td-vendor { padding: 14px 20px; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); vertical-align: top; background: var(--surface); }
+.rpt-table tr:last-child .rpt-td-scope, .rpt-table tr:last-child .rpt-td-vendor { border-bottom: none; }
+.rpt-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-top: 2px; }
+.rpt-dot.dot-ok { background: var(--ok); }
+.rpt-dot.dot-warn { background: var(--warn); }
+.rpt-dot.dot-miss { background: var(--border2); }
+.rpt-dot.dot-na { background: var(--border2); }
+.rpt-cell-status { display: flex; align-items: flex-start; gap: 7px; font-size: 13px; font-weight: 600; color: var(--text); }
+.rpt-cell-note { font-size: 11px; color: var(--text2); margin-top: 5px; line-height: 1.55; padding-left: 17px; }
+.rpt-watchout-row .rpt-td-scope { background: rgba(239,159,39,0.05); }
+.rpt-td-wo { background: rgba(239,159,39,0.03); padding: 14px 20px; }
+.rpt-wo-label-cell { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #c07000; }
+.rpt-wo-item { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--text2); margin-bottom: 8px; line-height: 1.55; }
+.rpt-wo-item:last-child { margin-bottom: 0; }
+.rpt-wo-num { min-width: 20px; height: 20px; background: rgba(239,159,39,0.18); color: #c07000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+.rpt-block { margin-bottom: 24px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.rpt-block-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
+.rpt-block-header-warn { background: rgba(239,159,39,0.1); color: #a06000; border-bottom: 1px solid rgba(239,159,39,0.2); }
+.rpt-block-header-purp { background: var(--purp-ll); color: var(--purp); border-bottom: 1px solid var(--purp-l); }
+.rpt-block-count { font-size: 13px; font-weight: 700; }
+.rpt-list-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px 18px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); line-height: 1.65; background: var(--surface); }
+.rpt-list-item:last-child { border-bottom: none; }
+.rpt-item-num { min-width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.rpt-num-warn { background: rgba(239,159,39,0.18); color: #a06000; }
+.rpt-num-purp { background: var(--purp); color: #fff; }
+/* ── Legacy (kept for recheck panel) ── */
+.section-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .status-dot.ok { background: var(--ok); }
 .status-dot.warn { background: var(--warn); }
 .status-dot.miss { background: var(--miss); }
 .status-dot.na { background: var(--border2); }
-
-.cell-price { font-weight: 700; color: var(--text); }
-.cell-note { font-size: 11px; color: var(--text2); margin-top: 3px; }
-.cell-status { display: flex; align-items: center; gap: 6px; }
-
-/* ── Vendor cards ── */
-.vendors-section { margin-bottom: 32px; }
-.vendor-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
-.vendor-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 20px;
+/* ── Print / PDF ── */
+@media print {
+  body * { visibility: hidden; }
+  #view-results, #view-results * { visibility: visible; }
+  .results-hero { display: none !important; }
+  #view-results { position: absolute; top: 0; left: 0; width: 100%; }
+  .container { max-width: 100% !important; padding: 24px !important; }
+  .rpt-table-wrap { overflow: visible !important; }
+  .rpt-table { font-size: 11px !important; }
+  .rpt-th-vendor, .rpt-td-vendor { min-width: 0 !important; }
+  #recheck-panel { display: none !important; }
 }
-.vendor-card.recommended { border-color: var(--purp); border-width: 2px; }
-.vendor-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.vendor-card-name { font-size: 15px; font-weight: 700; color: var(--text); }
-.vc-rec-badge { background: var(--purp); color: #fff; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 4px; padding: 3px 7px; }
-
-.vendor-stat { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
-.vendor-stat:last-child { border-bottom: none; }
-.vs-label { color: var(--text2); }
-.vs-val { font-weight: 600; color: var(--text); }
-
-.vendor-watchouts { margin-top: 14px; }
-.watchout-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--warn); margin-bottom: 6px; }
-.watchout-item {
-  display: flex; align-items: flex-start; gap: 4px;
-  background: var(--amber);
-  border-left: 3px solid var(--warn);
-  border-radius: 0 6px 6px 0;
-  padding: 7px 10px;
-  font-size: 11px;
-  color: var(--amber-d);
-  margin-bottom: 5px;
-  line-height: 1.5;
-}
-
-.tcs-risks { margin-top: 14px; }
-.tcs-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--miss); margin-bottom: 6px; }
-.tcs-item {
-  background: var(--red);
-  border-left: 3px solid var(--miss);
-  border-radius: 0 6px 6px 0;
-  padding: 7px 10px;
-  font-size: 11px;
-  color: var(--red-d);
-  margin-bottom: 5px;
-  line-height: 1.5;
-}
-.tcs-item.amber-risk {
-  background: var(--amber);
-  border-left-color: var(--warn);
-  color: var(--amber-d);
-}
-.tcs-item.grey-risk {
-  background: var(--surface2);
-  border-left-color: var(--border2);
-  color: var(--text3);
-}
-
-/* ── Next steps ── */
-.next-steps-section { margin-bottom: 32px; }
-.next-steps-list { display: flex; flex-direction: column; gap: 8px; }
-.next-step-item {
-  background: var(--purp-ll);
-  border: 1px solid var(--purp-l);
-  border-radius: 10px;
-  padding: 14px 18px;
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-}
-.ns-num {
-  width: 26px; height: 26px;
-  background: var(--purp);
-  color: #fff;
-  border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700;
-  flex-shrink: 0;
-}
-.ns-text { font-size: 13px; color: var(--text); line-height: 1.6; }
-
-/* ── Overall watch-outs ── */
-.overall-watchouts { margin-bottom: 32px; }
-.watchout-block {
-  background: var(--amber);
-  border: 1px solid var(--warn);
-  border-radius: 10px;
-  padding: 16px 20px;
-  margin-bottom: 8px;
-  font-size: 13px;
-  color: var(--amber-d);
-  line-height: 1.6;
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-.wo-icon { flex-shrink: 0; font-size: 15px; }
-
-/* ── Dismiss watch-outs ── */
-.watchout-block { position: relative; }
-.watchout-block.dismissed { opacity: 0.38; }
-.watchout-block.dismissed > div:not(.wo-icon) { text-decoration: line-through; }
-.wo-dismiss-btn {
-  flex-shrink: 0; margin-left: auto; background: none; border: 1px solid var(--warn);
-  border-radius: 5px; font-size: 10px; font-weight: 600; color: var(--warn);
-  cursor: pointer; padding: 2px 8px; opacity: 0.7; transition: opacity 0.15s; white-space: nowrap;
-}
-.wo-dismiss-btn:hover { opacity: 1; }
-.watchout-block.dismissed .wo-dismiss-btn { border-color: var(--text3); color: var(--text3); }
-
-/* ── Dismissed next steps ── */
-.next-step-item.dismissed { opacity: 0.42; }
-.next-step-item.dismissed .ns-text { text-decoration: line-through; color: var(--text3); }
-.next-step-item.dismissed .ns-num { background: var(--border2); }
-
-/* ── Clear all resolved button ── */
-.btn-clear-resolved {
-  background: none; border: 1px solid var(--ok); border-radius: 7px;
-  padding: 4px 12px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600;
-  color: var(--ok); cursor: pointer; transition: all 0.15s; display: flex;
-  align-items: center; gap: 5px; flex-shrink: 0;
-}
-.btn-clear-resolved:hover { background: var(--green); }
 
 /* ── Refresh / recheck ── */
 .btn-refresh {
@@ -903,14 +781,12 @@ nav {
 <div id="view-results" class="view">
 
   <div class="results-hero">
-    <div class="results-meta">Analysis complete</div>
-    <div class="results-title" id="results-title">Vendor Comparison</div>
-    <div class="results-sub" id="results-sub"></div>
     <div class="results-actions">
       <button class="btn-new-analysis" onclick="newAnalysis()">+ New analysis</button>
-      <button class="btn-ghost" onclick="showView('history')">📋 View history</button>
-      <button class="btn-refresh" id="refresh-btn" onclick="refreshAnalysis()">🔄 Refresh analysis</button>
+      <button class="btn-ghost" onclick="showView('history')">📋 History</button>
+      <button class="btn-refresh btn-ghost" id="refresh-btn" onclick="refreshAnalysis()">🔄 Refresh</button>
       <span class="last-updated-label" id="last-updated-label"></span>
+      <button class="btn-pdf" onclick="downloadPDF()">⬇ Download PDF</button>
     </div>
   </div>
 
@@ -1567,6 +1443,7 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
 {
   "recommendedVendor": "exact vendor name",
   "recommendationReason": "2-3 sentences explaining why this vendor is recommended",
+  "executiveSummary": "3-5 sentence paragraph summarising both vendors, what they offer, key similarities and differences, and the basis for the recommendation",
   "summary": {
     "totalScopeItems": number,
     "analysisDate": "today"
@@ -1583,6 +1460,7 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
     {
       "name": "vendor name",
       "totalPrice": "$X,XXX (or 'See breakdown')",
+      "quoteDate": "DD Mon YYYY or null",
       "coverageScore": "X/Y items covered",
       "watchOuts": ["watch out 1", "watch out 2"],
       "tcsRisks": [{"text": "risk description", "severity": "high|medium|low"}]
@@ -1674,203 +1552,166 @@ function parseResponse(text, vendorNames) {
 // ═══════════════════════════════════════════════════════
 //  RENDER RESULTS
 // ═══════════════════════════════════════════════════════
+function downloadPDF() {
+  window.print();
+}
+
 function renderResults(analysis) {
-  document.getElementById('results-title').textContent = `${analysis.vendorNames.join(' vs ')}`;
-  document.getElementById('results-sub').textContent = `${analysis.summary?.totalScopeItems || '?'} scope items · ${analysis.vendorNames.length} vendors compared`;
 
   const container = document.getElementById('results-content');
+  const vendorSummaries = analysis.vendorSummaries || [];
+  const coverageGrid = analysis.coverageGrid || [];
+  const recName = analysis.recommendedVendor || '';
+
+  // Determine lowest-price vendor (best-effort numeric parse)
+  let lowestVendor = null;
+  let lowestVal = Infinity;
+  vendorSummaries.forEach(v => {
+    const num = parseFloat((v.totalPrice || '').replace(/[^0-9.]/g, ''));
+    if (!isNaN(num) && num < lowestVal) { lowestVal = num; lowestVendor = v.name; }
+  });
+
   let html = '';
 
-  // Recommendation
+  // ── Document header ──
+  const scopeName = scopeFiles.length > 0 ? scopeFiles[0].name : 'Scope document';
   html += `
-    <div class="recommendation" style="margin-top:32px">
-      <div class="rec-label">⭐ Recommended vendor</div>
-      <div class="rec-name">${esc(analysis.recommendedVendor || 'See below')}</div>
-      <div class="rec-reason">${esc(analysis.recommendationReason || '')}</div>
-    </div>
-  `;
+    <div class="rpt-header">
+      <div class="rpt-scope-info">
+        <span class="rpt-scope-icon">📄</span>
+        <div>
+          <div class="rpt-scope-label">Scope document</div>
+          <div class="rpt-scope-name">${esc(scopeName)}</div>
+        </div>
+      </div>
+      <div class="rpt-header-right">
+        <span class="rpt-vendor-count">${vendorSummaries.length} vendors compared</span>
+        <span class="rpt-complete-badge">Complete</span>
+      </div>
+    </div>`;
 
-  // Summary stats
-  const vsCnt = (analysis.vendorSummaries || []).length;
-  const itemCnt = (analysis.coverageGrid || []).length;
-  html += `
-    <div class="summary-bar">
-      <div class="summary-stat"><div class="ss-val">${vsCnt}</div><div class="ss-label">Vendors compared</div></div>
-      <div class="summary-stat"><div class="ss-val">${itemCnt}</div><div class="ss-label">Scope items</div></div>
-      <div class="summary-stat"><div class="ss-val">${(analysis.nextSteps||[]).length}</div><div class="ss-label">Next steps</div></div>
-      <div class="summary-stat"><div class="ss-val">${(analysis.overallWatchOuts||[]).length}</div><div class="ss-label">Watch-outs</div></div>
-    </div>
-  `;
+  // ── Executive summary ──
+  const execSummary = analysis.executiveSummary || analysis.recommendationReason || '';
+  if (execSummary) {
+    html += `
+      <div class="rpt-exec-box">
+        <div class="rpt-section-label">Executive Summary</div>
+        <p class="rpt-summary-text">${esc(execSummary)}</p>
+      </div>`;
+  }
 
-  // Coverage grid
-  if (analysis.coverageGrid && analysis.coverageGrid.length > 0) {
-    const vendorNames = analysis.vendorSummaries?.map(v => v.name) || analysis.vendorNames || [];
-    html += `<div class="coverage-section"><div class="section-title">📊 Scope coverage</div>`;
-    html += `<div style="overflow-x:auto"><table class="coverage-table"><thead><tr>
-      <th>Scope item</th>
-      ${vendorNames.map(n => `<th>${esc(n)}</th>`).join('')}
-    </tr></thead><tbody>`;
+  // ── Vendor comparison table ──
+  if (vendorSummaries.length > 0 && coverageGrid.length > 0) {
+    html += `<div class="rpt-comparison-label">Vendor Comparison</div>`;
+    html += `<div class="rpt-table-wrap"><table class="rpt-table"><thead><tr>`;
+    html += `<th class="rpt-th-scope">Scope Item</th>`;
+    vendorSummaries.forEach(v => {
+      const isRec = v.name === recName;
+      const isLow = v.name === lowestVendor && lowestVendor !== null;
+      const missingCount = coverageGrid.filter(row => {
+        const vd = (row.vendors || []).find(x => x.name === v.name);
+        return !vd || vd.status === 'missing' || vd.status === 'na';
+      }).length;
+      const coveredCount = coverageGrid.length - missingCount;
+      html += `<th class="rpt-th-vendor ${isRec ? 'rpt-th-rec' : ''}">
+        <div class="rpt-vendor-badges">
+          ${isLow ? `<span class="rpt-badge-low">↓ Lowest</span>` : ''}
+          ${missingCount > 0 ? `<span class="rpt-badge-miss">${missingCount} missing</span>` : ''}
+        </div>
+        <div class="rpt-vendor-name">${esc(v.name)}</div>
+        <div class="rpt-vendor-price">${esc(v.totalPrice && v.totalPrice !== '—' ? v.totalPrice : 'Price not provided')}</div>
+        ${v.quoteDate ? `<div class="rpt-vendor-meta">📅 ${esc(v.quoteDate)}</div>` : ''}
+        <div class="rpt-vendor-meta">🔍 ${esc(v.coverageScore || coveredCount + '/' + coverageGrid.length)}</div>
+        ${isRec ? `<div class="rpt-rec-box"><div class="rpt-rec-label">★ Recommended</div><div class="rpt-rec-text">${esc(analysis.recommendationReason || '')}</div></div>` : ''}
+      </th>`;
+    });
+    html += `</tr></thead><tbody>`;
 
-    analysis.coverageGrid.forEach(row => {
-      html += `<tr><td style="font-weight:500">${esc(row.scopeItem)}</td>`;
-      vendorNames.forEach(vName => {
-        const vData = (row.vendors || []).find(v => v.name === vName);
-        if (vData) {
-          const statusClass = { covered: 'ok', partial: 'warn', missing: 'miss', na: 'na' }[vData.status] || 'na';
-          const statusLabel = { covered: 'Covered', partial: 'Partial', missing: 'Missing', na: 'N/A' }[vData.status] || vData.status;
-          html += `<td>
-            <div class="cell-status"><span class="status-dot ${statusClass}"></span>${statusLabel}</div>
-            ${vData.price ? `<div class="cell-price">${esc(vData.price)}</div>` : ''}
-            ${vData.note ? `<div class="cell-note">${esc(vData.note)}</div>` : ''}
-          </td>`;
-        } else {
-          html += `<td><div class="cell-status"><span class="status-dot na"></span>N/A</div></td>`;
-        }
+    // Scope rows
+    coverageGrid.forEach(row => {
+      html += `<tr><td class="rpt-td-scope">${esc(row.scopeItem)}</td>`;
+      vendorSummaries.forEach(v => {
+        const vData = (row.vendors || []).find(x => x.name === v.name);
+        const status = vData?.status || 'na';
+        const dotCls = {covered:'dot-ok', partial:'dot-warn', missing:'dot-miss', na:'dot-na'}[status] || 'dot-na';
+        const label = {covered:'Included', partial:'Partial', missing:'—', na:'—'}[status] || '—';
+        html += `<td class="rpt-td-vendor">
+          <div class="rpt-cell-status"><span class="rpt-dot ${dotCls}"></span>${label}</div>
+          ${vData?.note ? `<div class="rpt-cell-note">${esc(vData.note)}</div>` : ''}
+        </td>`;
       });
       html += `</tr>`;
     });
 
-    html += `</tbody></table></div></div>`;
-  }
+    // Per-vendor watch-outs row
+    const hasVendorWO = vendorSummaries.some(v => v.watchOuts && v.watchOuts.length > 0);
+    if (hasVendorWO) {
+      html += `<tr class="rpt-watchout-row"><td class="rpt-td-scope rpt-wo-label-cell">⚠ Watch-outs</td>`;
+      vendorSummaries.forEach(v => {
+        html += `<td class="rpt-td-vendor rpt-td-wo">`;
+        (v.watchOuts || []).forEach((w, i) => {
+          html += `<div class="rpt-wo-item"><span class="rpt-wo-num">${i+1}</span>${esc(w)}</div>`;
+        });
+        html += `</td>`;
+      });
+      html += `</tr>`;
+    }
 
-  // Fee not detected warning
-  if (analysis.vendorSummaries && analysis.vendorSummaries.length > 0) {
-    const missingFee = analysis.vendorSummaries.filter(v => !v.totalPrice || v.totalPrice === '—' || v.totalPrice === 'null' || v.totalPrice.toLowerCase().includes('not provided') || v.totalPrice.toLowerCase().includes('not found'));
+    html += `</tbody></table></div>`;
+
+    // Fee missing notice
+    const missingFee = vendorSummaries.filter(v => !v.totalPrice || v.totalPrice === '—' || /not provided|not found/i.test(v.totalPrice || ''));
     if (missingFee.length > 0) {
-      html += `<div style="background:rgba(239,159,39,0.12);border:1px solid rgba(239,159,39,0.4);border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--text2);">
-        <strong style="color:#EF9F27">⚠ Fee not detected for: ${missingFee.map(v => esc(v.name)).join(', ')}</strong><br>
-        <span>Pricing is often in the final pages of large proposal documents. Try uploading just the fee/pricing pages as a separate additional quote file for ${missingFee.length === 1 ? 'this vendor' : 'these vendors'} and re-run the analysis.</span>
+      html += `<div style="background:rgba(239,159,39,0.1);border:1px solid rgba(239,159,39,0.3);border-radius:10px;padding:12px 18px;margin-bottom:20px;font-size:13px;color:var(--text2);">
+        <strong style="color:#a06000">⚠ No fee detected for: ${missingFee.map(v => esc(v.name)).join(', ')}</strong><br>
+        Pricing is often in the final pages. Try uploading just the fee/pricing pages as an additional quote file and re-run.
       </div>`;
     }
   }
 
-  // Vendor summary cards
-  if (analysis.vendorSummaries && analysis.vendorSummaries.length > 0) {
-    html += `<div class="vendors-section"><div class="section-title">📋 Vendor breakdown</div><div class="vendor-cards">`;
-    analysis.vendorSummaries.forEach(v => {
-      const isRec = v.name === analysis.recommendedVendor;
-      html += `<div class="vendor-card ${isRec ? 'recommended' : ''}">
-        <div class="vendor-card-header">
-          <div class="vendor-card-name">${esc(v.name)}</div>
-          ${isRec ? `<div class="vc-rec-badge">⭐ Recommended</div>` : ''}
-        </div>
-        <div class="vendor-stat"><span class="vs-label">Total price</span><span class="vs-val">${esc(v.totalPrice || '—')}</span></div>
-        <div class="vendor-stat"><span class="vs-label">Coverage</span><span class="vs-val">${esc(v.coverageScore || '—')}</span></div>`;
-
-      if (v.watchOuts && v.watchOuts.length > 0) {
-        html += `<div class="vendor-watchouts"><div class="watchout-label">⚠ Watch-outs</div>`;
-        v.watchOuts.forEach(w => {
-          const key = 'vendor:' + v.name + ':' + w;
-          const manualDismissed = dismissedWatchOuts.has(key);
-          const autoDismissed = isAutoResolved(key, w, analysis);
-          const dismissed = manualDismissed || autoDismissed;
-          const safeKey = key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-          let btn = '';
-          if (manualDismissed) {
-            btn = `<button style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--text3);padding:0 0 0 6px;flex-shrink:0" onclick="restoreWatchOut('${safeKey}')">↩</button>`;
-          } else if (autoDismissed) {
-            btn = `<span style="font-size:10px;color:var(--ok);padding:0 0 0 6px;flex-shrink:0;font-weight:700">✓</span>`;
-          } else {
-            btn = `<button style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--text3);padding:0 0 0 6px;flex-shrink:0" onclick="dismissWatchOut('${safeKey}')">✕</button>`;
-          }
-          html += `<div class="watchout-item" style="${dismissed ? 'opacity:0.38;text-decoration:line-through' : ''}">
-            <span style="flex:1">${esc(w)}</span>
-            ${btn}
-          </div>`;
-        });
-        html += `</div>`;
-      }
-
-      if (v.tcsRisks && v.tcsRisks.length > 0) {
-        html += `<div class="tcs-risks">
-          <div class="tcs-label">⚡ T&Cs risks</div>
-          ${v.tcsRisks.map(r => {
-            const cls = r.severity === 'high' ? '' : r.severity === 'medium' ? 'amber-risk' : 'grey-risk';
-            return `<div class="tcs-item ${cls}">${esc(r.text)}</div>`;
-          }).join('')}
-        </div>`;
-      }
-
-      html += `</div>`;
-    });
-    html += `</div></div>`;
-  }
-
-  // Overall watch-outs (with auto-dismiss + "Clear all resolved" button)
+  // ── Overall watch-outs & risks ──
   if (analysis.overallWatchOuts && analysis.overallWatchOuts.length > 0) {
-    // Count uncleared auto-resolvable items across ALL sections
-    const pendingOverall = (analysis.overallWatchOuts || []).filter(w => {
-      const k = 'overall:' + w; return isAutoResolved(k, w, analysis) && !dismissedWatchOuts.has(k);
-    }).length;
-    const pendingVendor = (analysis.vendorSummaries || []).reduce((sum, vs) =>
-      sum + (vs.watchOuts || []).filter(w => {
-        const k = 'vendor:' + vs.name + ':' + w; return isAutoResolved(k, w, analysis) && !dismissedWatchOuts.has(k);
-      }).length, 0);
-    const pendingSteps = (analysis.nextSteps || []).filter((step, i) => {
-      const k = 'nextstep:' + i + ':' + step; return isAutoResolved(k, step, analysis) && !dismissedWatchOuts.has(k);
-    }).length;
-    const totalPending = pendingOverall + pendingVendor + pendingSteps;
-
-    html += `<div class="overall-watchouts">
-      <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <span>⚠ Overall watch-outs &amp; risks</span>
-        ${totalPending > 0 ? `<button class="btn-clear-resolved" onclick="clearAllResolved()">✓ Clear ${totalPending} resolved item${totalPending > 1 ? 's' : ''}</button>` : ''}
+    html += `<div class="rpt-block">
+      <div class="rpt-block-header rpt-block-header-warn">
+        <span>⚠ Watch-outs &amp; Risks</span>
+        <span class="rpt-block-count">${analysis.overallWatchOuts.length}</span>
       </div>`;
-    analysis.overallWatchOuts.forEach(w => {
-      const key = 'overall:' + w;
-      const manualDismissed = dismissedWatchOuts.has(key);
-      const autoDismissed = isAutoResolved(key, w, analysis);
-      const dismissed = manualDismissed || autoDismissed;
-      const safeKey = key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      let dismissBtn = '';
-      if (manualDismissed) {
-        dismissBtn = `<button class="wo-dismiss-btn" onclick="restoreWatchOut('${safeKey}')">Restore</button>`;
-      } else if (autoDismissed) {
-        dismissBtn = `<span style="font-size:10px;color:var(--ok);flex-shrink:0;font-weight:700;white-space:nowrap">✓ Resolved</span>`;
-      } else {
-        dismissBtn = `<button class="wo-dismiss-btn" onclick="dismissWatchOut('${safeKey}')">Dismiss</button>`;
-      }
-      html += `<div class="watchout-block${dismissed ? ' dismissed' : ''}">
-        <div class="wo-icon">⚠</div>
-        <div style="flex:1">${esc(w)}</div>
-        ${dismissBtn}
+    analysis.overallWatchOuts.forEach((w, i) => {
+      html += `<div class="rpt-list-item">
+        <span class="rpt-item-num rpt-num-warn">${i+1}</span>
+        <span>${esc(w)}</span>
       </div>`;
     });
     html += `</div>`;
   }
 
-  // Next steps (with auto-dismiss for fee-related steps when all fees are resolved)
+  // ── Next steps ──
   if (analysis.nextSteps && analysis.nextSteps.length > 0) {
-    html += `<div class="next-steps-section"><div class="section-title">✅ Next steps</div><div class="next-steps-list">`;
+    html += `<div class="rpt-block">
+      <div class="rpt-block-header rpt-block-header-purp">
+        <span>⊙ Next Steps</span>
+        <span class="rpt-block-count">${analysis.nextSteps.length}</span>
+      </div>`;
     analysis.nextSteps.forEach((step, i) => {
-      const key = 'nextstep:' + i + ':' + step;
-      const manualDismissed = dismissedWatchOuts.has(key);
-      const autoDismissed = isAutoResolved(key, step, analysis);
-      const dismissed = manualDismissed || autoDismissed;
-      html += `<div class="next-step-item${dismissed ? ' dismissed' : ''}">
-        <div class="ns-num">${i+1}</div>
-        <div class="ns-text">${esc(step)}</div>
-        ${autoDismissed && !manualDismissed ? `<span style="font-size:10px;color:var(--ok);flex-shrink:0;font-weight:700;margin-left:auto;padding-left:10px">✓</span>` : ''}
+      html += `<div class="rpt-list-item">
+        <span class="rpt-item-num rpt-num-purp">${i+1}</span>
+        <span>${esc(step)}</span>
       </div>`;
     });
-    html += `</div></div>`;
+    html += `</div>`;
   }
 
   container.innerHTML = html;
 
-  // Update last-updated label + refresh button
   const label = document.getElementById('last-updated-label');
   if (label && lastUpdated) {
     label.style.display = 'inline';
-    label.textContent = 'Last updated ' + lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    label.textContent = 'Updated ' + lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
   updateRefreshBtn();
   renderRecheckPanel();
 }
 
-// ═══════════════════════════════════════════════════════
-//  HISTORY
-// ═══════════════════════════════════════════════════════
 function saveToHistory(analysis) {
   const history = getHistory();
   history.unshift(analysis);
