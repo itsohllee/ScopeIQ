@@ -518,18 +518,18 @@ nav {
 .rpt-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--purp); margin-bottom: 12px; }
 .rpt-summary-text { font-size: 14px; color: var(--text); line-height: 1.75; margin: 0; }
 .rpt-comparison-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); margin-bottom: 12px; }
-.rpt-table-wrap { overflow-x: auto; margin-bottom: 28px; border: 1px solid #e8e8e8; border-radius: 12px; background: #ffffff; }
-.rpt-table { width: 100%; border-collapse: collapse; font-size: 13px; background: #ffffff; }
+.rpt-table-wrap { overflow-x: auto; margin: 0 -40px 28px; border: 1px solid #e8e8e8; border-left: none; border-right: none; border-radius: 0; background: #ffffff; }
+.rpt-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 13px; background: #ffffff; min-width: 600px; }
 .rpt-th-scope {
-  width: 190px; min-width: 150px; padding: 18px 18px 14px;
+  width: 25%; min-width: 150px; padding: 12px 14px;
   font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
   color: var(--text3); text-align: left; vertical-align: bottom;
   border-bottom: 1px solid #e8e8e8;
   position: sticky; top: 0; z-index: 3; background: #ffffff;
 }
 .rpt-th-vendor {
-  padding: 16px 20px 14px; text-align: left; vertical-align: top;
-  border-bottom: 1px solid #e8e8e8; border-left: 1px solid #e8e8e8; min-width: 210px;
+  padding: 12px 14px; text-align: left; vertical-align: top;
+  border-bottom: 1px solid #e8e8e8; border-left: 1px solid #e8e8e8; min-width: 200px;
   position: sticky; top: 0; z-index: 2; background: #ffffff;
 }
 .rpt-th-rec {
@@ -549,11 +549,11 @@ nav {
 .rpt-rec-label { display: inline-block; background: #534AB7; color: #fff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 4px; padding: 3px 8px; margin-bottom: 8px; }
 .rpt-rec-text { font-size: 12px; color: #3d3580; line-height: 1.6; }
 .rpt-td-scope {
-  padding: 14px 18px; font-size: 13px; font-weight: 400; color: #333;
+  padding: 12px 14px; font-size: 13px; font-weight: 400; color: #333;
   border-bottom: 1px solid #e8e8e8; vertical-align: top; background: #ffffff;
 }
 .rpt-td-vendor {
-  padding: 14px 20px; border-bottom: 1px solid #e8e8e8;
+  padding: 12px 14px; border-bottom: 1px solid #e8e8e8;
   border-left: 1px solid #e8e8e8; vertical-align: top; background: #ffffff;
 }
 .rpt-table tr:last-child .rpt-td-scope,
@@ -576,12 +576,15 @@ nav {
 .rpt-td-rec { background: rgba(83,74,183,0.025) !important; box-shadow: -2px 0 0 0 #534AB7, 2px 0 0 0 #534AB7; }
 .rpt-table tbody tr:nth-child(even) .rpt-td-rec { background: rgba(83,74,183,0.05) !important; }
 .rpt-table tr:last-child .rpt-td-rec { box-shadow: -2px 0 0 0 #534AB7, 2px 0 0 0 #534AB7, 0 2px 0 0 #534AB7; }
-.rpt-cell-note { font-size: 11px; color: var(--text3); margin-top: 4px; line-height: 1.5; padding-left: 15px; }
+.rpt-cell-note { font-size: 11px; margin-top: 4px; line-height: 1.5; padding-left: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rpt-cell-note.note-ok   { color: #666666; }
+.rpt-cell-note.note-warn { color: #854F0B; }
+.rpt-cell-note.note-miss { color: #A32D2D; }
+.rpt-cell-note.note-na   { color: #888888; }
 .rpt-watchout-row .rpt-td-scope { background: rgba(239,159,39,0.05); }
 .rpt-td-wo { background: rgba(239,159,39,0.03); padding: 14px 20px; }
 .rpt-wo-label-cell { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #c07000; }
 .rpt-wo-item { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--text2); margin-bottom: 8px; line-height: 1.55; }
-.rpt-wo-item:last-child { margin-bottom: 0; }
 .rpt-wo-num { min-width: 20px; height: 20px; background: rgba(239,159,39,0.18); color: #c07000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
 .rpt-wo-num { min-width: 20px; height: 20px; background: rgba(239,159,39,0.18); color: #c07000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
 .rpt-block { margin-bottom: 24px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
@@ -610,7 +613,7 @@ nav {
   .results-hero { display: none !important; }
   #view-results { position: absolute; top: 0; left: 0; width: 100%; }
   .container { max-width: 100% !important; padding: 24px !important; }
-  .rpt-table-wrap { overflow: visible !important; }
+  .rpt-table-wrap { overflow: visible !important; border: 1px solid #ddd !important; margin: 0 !important; }
   .rpt-table { font-size: 11px !important; }
   .rpt-th-vendor, .rpt-td-vendor { min-width: 0 !important; }
   #recheck-panel { display: none !important; }
@@ -740,6 +743,7 @@ nav {
   .container { padding: 24px 20px; }
   .vendor-files-row { grid-template-columns: 1fr; }
   .results-hero { padding: 28px 20px; }
+  .rpt-table-wrap { margin: 0 -20px 28px; }
 }
 </style>
 </head>
@@ -1785,10 +1789,11 @@ function renderResults(analysis) {
         const status = vData?.status || 'na';
         const dotCls = {covered:'dot-ok', partial:'dot-warn', missing:'dot-miss', na:'dot-na'}[status] || 'dot-na';
         const txtCls = {covered:'s-ok', partial:'s-warn', missing:'s-miss', na:'s-na'}[status] || 's-na';
+        const noteCls = {covered:'note-ok', partial:'note-warn', missing:'note-miss', na:'note-na'}[status] || 'note-na';
         const label = {covered:'Included', partial:'Partial', missing:'—', na:'—'}[status] || '—';
         html += `<td class="rpt-td-vendor ${isRecV ? 'rpt-td-rec' : ''}">
           <div class="rpt-cell-status ${txtCls}"><span class="rpt-dot ${dotCls}"></span>${label}</div>
-          ${vData?.note ? `<div class="rpt-cell-note">${esc(vData.note)}</div>` : ''}
+          ${vData?.note ? `<div class="rpt-cell-note ${noteCls}">${esc(vData.note)}</div>` : ''}
         </td>`;
       });
       html += `</tr>`;
