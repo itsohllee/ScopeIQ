@@ -182,7 +182,7 @@ nav {
 }
 
 /* ── Container ── */
-.container { max-width: 860px; margin: 0 auto; padding: 40px; }
+.container { max-width: 1400px; margin: 0 auto; padding: 40px; }
 
 /* ── API Key Panel ── */
 .api-panel {
@@ -518,29 +518,28 @@ nav {
 .rpt-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--purp); margin-bottom: 12px; }
 .rpt-summary-text { font-size: 14px; color: var(--text); line-height: 1.75; margin: 0; }
 .rpt-comparison-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); margin-bottom: 12px; }
-.rpt-table-wrap { overflow-x: auto; margin: 0 -40px 28px; border: 1px solid #e8e8e8; border-left: none; border-right: none; border-radius: 0; background: #ffffff; }
+.rpt-table-wrap { overflow-x: auto; margin: 0 0 28px; border: 1px solid #e8e8e8; border-left: none; border-right: none; border-radius: 0; background: #ffffff; }
 .rpt-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 13px; background: #ffffff; min-width: 600px; }
 .rpt-th-scope {
-  width: 25%; min-width: 150px; padding: 12px 14px;
+  width: 220px; min-width: 220px; padding: 12px 14px;
   font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
   color: var(--text3); text-align: left; vertical-align: bottom;
   border-bottom: 1px solid #e8e8e8;
   position: sticky; top: 0; z-index: 3; background: #ffffff;
 }
 .rpt-th-vendor {
-  padding: 12px 14px; text-align: left; vertical-align: top;
-  border-bottom: 1px solid #e8e8e8; border-left: 1px solid #e8e8e8; min-width: 200px;
+  padding: 12px 16px; text-align: left; vertical-align: top;
+  border-bottom: 1px solid #e8e8e8; border-left: 1px solid #e8e8e8;
   position: sticky; top: 0; z-index: 2; background: #ffffff;
 }
 .rpt-th-rec {
   background: #ffffff !important;
-  box-shadow: -2px 0 0 0 #534AB7, 2px 0 0 0 #534AB7, 0 -2px 0 0 #534AB7;
   border-bottom-color: #e8e8e8 !important;
 }
 .rpt-vendor-badges { margin-bottom: 8px; display: flex; gap: 6px; flex-wrap: wrap; min-height: 20px; }
 .rpt-badge-miss { background: #FFEBEE; color: #A32D2D; border-radius: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border: none; }
 .rpt-badge-low  { background: #E1F5EE; color: #0F6E56; border-radius: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border: none; }
-.rpt-vendor-name { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+.rpt-vendor-name { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .rpt-vendor-name-alt { color: #1a1a1a !important; }
 .rpt-vendor-price { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; line-height: 1.2; }
 .rpt-th-rec .rpt-vendor-price { color: #534AB7; }
@@ -551,13 +550,15 @@ nav {
 .rpt-vh-wo { font-size: 10px; color: var(--warn); margin-top: 4px; line-height: 1.45; font-style: italic; }
 .rpt-rec-box { background: #EEEDFE; border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
 .rpt-rec-label { display: inline-block; background: #534AB7; color: #fff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 4px; padding: 3px 8px; margin-bottom: 8px; }
-.rpt-rec-text { font-size: 12px; color: #3d3580; line-height: 1.6; }
+.rpt-rec-text { font-size: 12px; color: #3d3580; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.rpt-rec-text.expanded { display: block; overflow: visible; -webkit-line-clamp: unset; }
+.rpt-rec-more { display: inline-block; margin-top: 6px; font-size: 11px; font-weight: 600; color: var(--purp); cursor: pointer; background: none; border: none; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
 .rpt-td-scope {
   padding: 12px 14px; font-size: 13px; font-weight: 400; color: #333;
   border-bottom: 1px solid #e8e8e8; vertical-align: top; background: #ffffff;
 }
 .rpt-td-vendor {
-  padding: 12px 14px; border-bottom: 1px solid #e8e8e8;
+  padding: 12px 16px; border-bottom: 1px solid #e8e8e8;
   border-left: 1px solid #e8e8e8; vertical-align: top; background: #ffffff;
 }
 .rpt-table tr:last-child .rpt-td-scope,
@@ -577,9 +578,8 @@ nav {
 .rpt-cell-status.s-warn { color: var(--warn); }
 .rpt-cell-status.s-miss { color: var(--miss); }
 .rpt-cell-status.s-na  { color: var(--text3); }
-.rpt-td-rec { background: rgba(83,74,183,0.025) !important; box-shadow: -2px 0 0 0 #534AB7, 2px 0 0 0 #534AB7; }
+.rpt-td-rec { background: rgba(83,74,183,0.025) !important; }
 .rpt-table tbody tr:nth-child(even) .rpt-td-rec { background: rgba(83,74,183,0.05) !important; }
-.rpt-table tr:last-child .rpt-td-rec { box-shadow: -2px 0 0 0 #534AB7, 2px 0 0 0 #534AB7, 0 2px 0 0 #534AB7; }
 .rpt-cell-note { font-size: 11px; margin-top: 4px; line-height: 1.5; padding-left: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .rpt-cell-note.note-ok   { color: #666666; }
 .rpt-cell-note.note-warn { color: #854F0B; }
@@ -747,7 +747,7 @@ nav {
   .container { padding: 24px 20px; }
   .vendor-files-row { grid-template-columns: 1fr; }
   .results-hero { padding: 28px 20px; }
-  .rpt-table-wrap { margin: 0 -20px 28px; }
+  .rpt-table-wrap { margin: 0 0 28px; }
 }
 </style>
 </head>
@@ -1568,6 +1568,14 @@ function addRecheckFiles(e, vendorId, isDrop) {
   renderRecheckPanel();
 }
 
+// ── Read-more toggle for recommendation reasoning ────────────────────────────────────────────
+function toggleRecText(btn, id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const expanded = el.classList.toggle('expanded');
+  btn.textContent = expanded ? 'Show less' : 'Read more';
+}
+
 // ── Vendor history helper ──────────────────────────────────────────────────
 function getVendorHistory(vendorName) {
   const norm = n => (n || '').toLowerCase().trim();
@@ -1781,7 +1789,7 @@ function renderResults(analysis) {
   // Determine lowest-price vendor (best-effort numeric parse)
   let lowestVendor = null;
   let lowestVal = Infinity;
-  vendorSummaries.forEach(v => {
+  vendorSummaries.forEach((v, i) => {
     const num = parseFloat((v.totalPrice || '').replace(/[^0-9.]/g, ''));
     if (!isNaN(num) && num < lowestVal) { lowestVal = num; lowestVendor = v.name; }
   });
@@ -1851,7 +1859,7 @@ function renderResults(analysis) {
           return `<div class="rpt-vendor-history"><span class="rpt-vh-pill">📋 ${vh.count} past${avgStr}</span>${recStr}</div>${woStr}`;
         })()}
 
-        ${isRec ? `<div class="rpt-rec-box"><div class="rpt-rec-label">★ Recommended</div><div class="rpt-rec-text">${esc(analysis.recommendationReason || '')}</div></div>` : ''}
+        ${isRec ? `<div class="rpt-rec-box"><div class="rpt-rec-label">★ Recommended</div><div class="rpt-rec-text" id="rec-text-${i}">${esc(analysis.recommendationReason || '')}</div><button class="rpt-rec-more" onclick="toggleRecText(this,'rec-text-'+i)">Read more</button></div>` : ''}
       </th>`;
     });
     html += `</tr></thead><tbody>`;
