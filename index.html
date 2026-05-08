@@ -1181,6 +1181,8 @@ async function runAnalysis() {
   const apiKey = getApiKey();
   if (!apiKey) { showError('Please enter your Anthropic API key first.'); return; }
 
+  const activeVendors = vendors.filter(v => v.quoteFiles.length > 0);
+  if (activeVendors.length === 0) { showError('Please upload at least one vendor quote file.'); return; }
   hideError();
   document.getElementById('analyse-btn').disabled = true;
   showProgress('ps-extract', 'Reading documents…', 'Extracting content from your files');
