@@ -396,6 +396,40 @@ nav {
 }
 .add-vendor-btn:hover { border-color: var(--purp); color: var(--purp); background: var(--purp-ll); }
 
+/* ── New upload grid ── */
+.ugrid-wrap { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+.ugrid { display: grid; grid-template-columns: repeat(4, 1fr); align-items: stretch; }
+.ugrid-col { padding: 20px 18px; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; }
+.ugrid-col:last-child { border-right: none; }
+.ugrid-hdr { display: flex; align-items: center; gap: 8px; min-height: 32px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #e8e8e8; }
+.ugrid-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); }
+.ugrid-badge { background: #534AB7; color: #fff; font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ugrid-vendor-name { border: none; outline: none; font-size: 13px; font-weight: 700; color: var(--text); font-family: 'Syne', sans-serif; background: transparent; flex: 1; min-width: 0; }
+.ugrid-vendor-name::placeholder { color: var(--text3); }
+.ugrid-drop { position: relative; border: 1.5px dashed #d0cef8; border-radius: 8px; background: #fff; padding: 18px 12px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; margin-bottom: 6px; }
+.ugrid-drop:hover, .ugrid-drop.dragover { border-color: #534AB7; background: #f4f3ff; }
+.ugrid-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.ugrid-drop-icon { display: flex; align-items: center; justify-content: center; margin-bottom: 7px; }
+.ugrid-drop-icon svg { width: 22px; height: 22px; }
+.ugrid-drop-main { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.ugrid-drop-hint { font-size: 11px; color: var(--text3); line-height: 1.45; }
+.ugrid-drop-sm { padding: 10px 12px; }
+.ugrid-drop-sm .ugrid-drop-icon { margin-bottom: 3px; }
+.ugrid-drop-sm .ugrid-drop-icon svg { width: 16px; height: 16px; }
+.ugrid-drop-sm .ugrid-drop-main { font-size: 11px; }
+.ugrid-sublabel { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin: 12px 0 5px; }
+.ugrid-notes { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 7px 9px; font-size: 12px; font-family: 'Syne', sans-serif; color: var(--text); background: var(--surface); resize: none; height: 62px; outline: none; line-height: 1.5; }
+.ugrid-notes:focus { border-color: var(--purp); }
+.ugrid-notes::placeholder { color: var(--text3); }
+.ugrid-scope-note { font-size: 11px; color: var(--text3); margin-top: 10px; line-height: 1.55; }
+.ugrid-provider-section { margin-bottom: 0; }
+.ugrid-provider-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 10px; }
+.upload-bottom-bar { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding: 16px 0 4px; margin-top: 20px; }
+.file-count-label { font-size: 13px; color: var(--text3); }
+.run-btn { background: #534AB7; color: #fff; border: none; border-radius: 8px; padding: 13px 32px; font-size: 14px; font-weight: 700; font-family: 'Syne', sans-serif; cursor: pointer; transition: background 0.15s; }
+.run-btn:hover:not(:disabled) { background: #3C3489; }
+.run-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
 /* ── Analyse button ── */
 .analyse-btn {
   background: var(--purp);
@@ -781,64 +815,140 @@ nav {
 
   <div class="container">
 
-    <!-- API Key -->
-    <div class="api-panel" id="api-panel">
-      <div class="api-panel-icon">🔑</div>
-      <div class="api-panel-text">
-        <strong>AI Provider</strong>
-        <p id="api-panel-hint">Your key stays in this browser — never sent anywhere else.</p>
-      </div>
-      <div style="width:100%">
-        <div class="provider-tabs">
-          <button class="provider-tab active" id="tab-anthropic" onclick="selectProvider('anthropic')">Anthropic</button>
-          <button class="provider-tab" id="tab-gemini" onclick="selectProvider('gemini')">Google Gemini <span style="font-size:10px;opacity:0.75">(free)</span></button>
+    <!-- 4-column upload grid -->
+    <div class="ugrid-wrap">
+      <div class="ugrid">
+
+        <!-- PROJECT SCOPE -->
+        <div class="ugrid-col">
+          <div class="ugrid-hdr"><span class="ugrid-title">Project Scope</span></div>
+          <div class="ugrid-drop" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'scope')">
+            <input type="file" accept=".pdf,.txt,.doc,.docx" onchange="handleFileInput(event,'scope')">
+            <div class="ugrid-drop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="ugrid-drop-main">Click or drag files</div>
+            <div class="ugrid-drop-hint">PDF, Word or text brief</div>
+          </div>
+          <div class="file-pills" id="scope-pills"></div>
+          <div class="ugrid-scope-note">Optional — skip it and we'll reverse-engineer the scope from the quotes.</div>
         </div>
-        <div class="api-panel-input-row">
-          <input type="password" class="api-key-input" id="api-key-input" placeholder="sk-ant-api03-...">
-          <button class="btn-save-key" onclick="saveApiKey()">Save key</button>
-          <div class="key-saved-badge" id="key-saved-badge">✓ Key saved</div>
+
+        <!-- VENDOR 1 -->
+        <div class="ugrid-col">
+          <div class="ugrid-hdr">
+            <span class="ugrid-badge">A</span>
+            <input class="ugrid-vendor-name" value="Vendor 1" oninput="updateVendorName('v1',this.value)" placeholder="Vendor name">
+          </div>
+          <div class="ugrid-drop" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'quote','v1')">
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.txt" multiple onchange="handleFileInput(event,'quote','v1')">
+            <div class="ugrid-drop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="ugrid-drop-main">Click or drag files</div>
+            <div class="ugrid-drop-hint">PDF, image or Word doc (upload multiple if needed)</div>
+          </div>
+          <div class="file-pills" id="quote-pills-v1"></div>
+          <div class="ugrid-sublabel">T&amp;CS (optional)</div>
+          <div class="ugrid-drop ugrid-drop-sm" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'tcs','v1')">
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.txt" onchange="handleFileInput(event,'tcs','v1')">
+            <div class="ugrid-drop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="ugrid-drop-main">Click or drag</div>
+          </div>
+          <div class="file-pills" id="tcs-pills-v1"></div>
+          <div class="ugrid-sublabel">Vendor Notes (optional)</div>
+          <textarea class="ugrid-notes" placeholder="e.g. already onboarded, preferred supplier..." oninput="updateVendorNotes('v1',this.value)"></textarea>
         </div>
+
+        <!-- VENDOR 2 -->
+        <div class="ugrid-col">
+          <div class="ugrid-hdr">
+            <span class="ugrid-badge">B</span>
+            <input class="ugrid-vendor-name" value="Vendor 2" oninput="updateVendorName('v2',this.value)" placeholder="Vendor name">
+          </div>
+          <div class="ugrid-drop" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'quote','v2')">
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.txt" multiple onchange="handleFileInput(event,'quote','v2')">
+            <div class="ugrid-drop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="ugrid-drop-main">Click or drag files</div>
+            <div class="ugrid-drop-hint">PDF, image or Word doc (optional)</div>
+          </div>
+          <div class="file-pills" id="quote-pills-v2"></div>
+          <div class="ugrid-sublabel">T&amp;CS (optional)</div>
+          <div class="ugrid-drop ugrid-drop-sm" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'tcs','v2')">
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.txt" onchange="handleFileInput(event,'tcs','v2')">
+            <div class="ugrid-drop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="ugrid-drop-main">Click or drag</div>
+          </div>
+          <div class="file-pills" id="tcs-pills-v2"></div>
+          <div class="ugrid-sublabel">Vendor Notes (optional)</div>
+          <textarea class="ugrid-notes" placeholder="e.g. already onboarded, preferred supplier..." oninput="updateVendorNotes('v2',this.value)"></textarea>
+        </div>
+
+        <!-- VENDOR 3 -->
+        <div class="ugrid-col">
+          <div class="ugrid-hdr">
+            <span class="ugrid-badge">C</span>
+            <input class="ugrid-vendor-name" value="Vendor 3" oninput="updateVendorName('v3',this.value)" placeholder="Vendor name">
+          </div>
+          <div class="ugrid-drop" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'quote','v3')">
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.txt" multiple onchange="handleFileInput(event,'quote','v3')">
+            <div class="ugrid-drop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="ugrid-drop-main">Click or drag files</div>
+            <div class="ugrid-drop-hint">PDF, image or Word doc (optional)</div>
+          </div>
+          <div class="file-pills" id="quote-pills-v3"></div>
+          <div class="ugrid-sublabel">T&amp;CS (optional)</div>
+          <div class="ugrid-drop ugrid-drop-sm" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'tcs','v3')">
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.txt" onchange="handleFileInput(event,'tcs','v3')">
+            <div class="ugrid-drop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="ugrid-drop-main">Click or drag</div>
+          </div>
+          <div class="file-pills" id="tcs-pills-v3"></div>
+          <div class="ugrid-sublabel">Vendor Notes (optional)</div>
+          <textarea class="ugrid-notes" placeholder="e.g. already onboarded, preferred supplier..." oninput="updateVendorNotes('v3',this.value)"></textarea>
+        </div>
+
       </div>
     </div>
 
-    <!-- Scope brief -->
-    <div class="upload-block">
-      <div class="upload-block-title">Scope / Brief <span style="font-size:10px;font-weight:500;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle;">optional</span></div>
-      <div class="upload-block-sub">Upload a brief or scope doc — or skip it and we'll reverse-engineer the scope from the quotes.</div>
-      <div class="drop-zone" id="scope-drop" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'scope')">
-        <input type="file" id="scope-file" accept=".pdf,.txt,.doc,.docx" onchange="handleFileInput(event,'scope')">
-        <div class="drop-icon">📄</div>
-        <div class="drop-text"><strong>Click to upload</strong> or drag & drop</div>
-      </div>
-      <div class="file-pills" id="scope-pills"></div>
-    </div>
-
-    <!-- Vendors -->
-    <div class="section-label">Vendor Quotes</div>
-    <div class="vendors-grid" id="vendors-container">
-      <!-- vendor blocks inserted here -->
-    </div>
-    <button class="add-vendor-btn" onclick="addVendor()" id="add-vendor-btn">
+    <!-- Extra vendors (4th+) -->
+    <div id="extra-vendors-container"></div>
+    <button class="add-vendor-btn" onclick="addVendor()" id="add-vendor-btn" style="margin-bottom:20px">
       <span>+</span> Add another vendor
     </button>
 
-    <!-- Analyse -->
-    <div style="margin-top:28px">
-      <button class="analyse-btn" id="analyse-btn" onclick="runAnalysis()">
-        <span>🔍</span> Analyse quotes
-      </button>
-      <div class="error-msg" id="error-msg"></div>
+    <!-- AI Provider -->
+    <div class="ugrid-provider-section">
+      <div class="ugrid-provider-label">AI Provider</div>
+      <div class="api-panel" id="api-panel">
+        <div class="api-panel-icon">🔑</div>
+        <div style="flex:1;min-width:200px">
+          <div class="provider-tabs">
+            <button class="provider-tab active" id="tab-anthropic" onclick="selectProvider('anthropic')">Claude (Anthropic)</button>
+            <button class="provider-tab" id="tab-gemini" onclick="selectProvider('gemini')">Gemini Flash <span style="font-size:10px;opacity:0.75">(free)</span></button>
+          </div>
+          <div class="api-panel-input-row">
+            <input type="password" class="api-key-input" id="api-key-input" placeholder="sk-ant-api03-...">
+            <button class="btn-save-key" onclick="saveApiKey()">Save key</button>
+            <div class="key-saved-badge" id="key-saved-badge">&#10003; Key saved</div>
+          </div>
+          <p style="margin-top:6px"><span id="api-panel-hint" style="font-size:12px;color:var(--text2)"></span></p>
+        </div>
+      </div>
     </div>
+
+    <!-- Bottom bar -->
+    <div class="upload-bottom-bar">
+      <span class="file-count-label" id="file-count-label">0 file(s) selected</span>
+      <button class="run-btn" id="analyse-btn" onclick="runAnalysis()">Run Analysis &#8594;</button>
+    </div>
+    <div class="error-msg" id="error-msg"></div>
 
     <!-- Progress -->
     <div class="progress-overlay" id="progress-overlay">
       <div class="progress-spinner"></div>
-      <div class="progress-title" id="progress-title">Reading documents…</div>
+      <div class="progress-title" id="progress-title">Reading documents&#8230;</div>
       <div class="progress-sub" id="progress-sub">Extracting text from your PDFs</div>
       <div class="progress-steps">
-        <div class="progress-step" id="ps-extract">📄 Extracting PDF text</div>
-        <div class="progress-step" id="ps-send">🤖 Sending to Claude AI</div>
-        <div class="progress-step" id="ps-parse">✅ Parsing results</div>
+        <div class="progress-step" id="ps-extract">&#128196; Extracting PDF text</div>
+        <div class="progress-step" id="ps-send">&#129302; Sending to AI</div>
+        <div class="progress-step" id="ps-parse">&#9989; Parsing results</div>
       </div>
     </div>
 
@@ -976,9 +1086,13 @@ function getApiKey() {
 window.addEventListener('DOMContentLoaded', () => {
   selectProvider(currentProvider);
   // Init with 3 vendors
-  addVendor();
-  addVendor();
-  addVendor();
+  vendors = [
+    { id: 'v1', name: 'Vendor 1', quoteFiles: [], tcsFiles: [], notes: '' },
+    { id: 'v2', name: 'Vendor 2', quoteFiles: [], tcsFiles: [], notes: '' },
+    { id: 'v3', name: 'Vendor 3', quoteFiles: [], tcsFiles: [], notes: '' },
+  ];
+  vendorCount = 3;
+  updateFileCount();
 });
 
 // ═══════════════════════════════════════════════════════
@@ -998,54 +1112,74 @@ function removeVendor(id) {
 }
 
 function renderVendors() {
-  const container = document.getElementById('vendors-container');
-  container.innerHTML = '';
-  vendors.forEach((v, i) => {
-    const block = document.createElement('div');
-    block.className = 'vendor-block';
-    block.id = 'block-' + v.id;
-    block.innerHTML = `
-      <div class="vendor-block-header">
-        <input class="vendor-name-input" value="${v.name}" placeholder="Vendor name"
-          oninput="updateVendorName('${v.id}', this.value)">
-        ${vendors.length > 1 ? `<button onclick="removeVendor('${v.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;line-height:1">×</button>` : ''}
-      </div>
-      <div class="vendor-files-row">
-        <div>
-          <div class="vendor-notes-label">Quote PDFs (upload multiple if needed)</div>
-          <div class="drop-zone" style="padding:14px"
-            ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
-            ondrop="handleDrop(event,'quote','${v.id}')">
-            <input type="file" accept="${ACCEPTED_TYPES}" multiple onchange="handleFileInput(event,'quote','${v.id}')">
-            <div class="drop-icon" style="font-size:16px">📄</div>
-            <div class="drop-text" style="font-size:11px"><strong>Upload quotes</strong><br><span style="color:var(--text3);font-weight:400">PDF, image or Word doc</span></div>
-          </div>
-          <div class="file-pills" id="quote-pills-${v.id}"></div>
-        </div>
-        <div>
-          <div class="vendor-notes-label">T&Cs PDF <span style="font-weight:400;color:var(--text3)">(optional)</span></div>
-          <div class="drop-zone" style="padding:14px"
-            ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
-            ondrop="handleDrop(event,'tcs','${v.id}')">
-            <input type="file" accept="${ACCEPTED_TYPES}" onchange="handleFileInput(event,'tcs','${v.id}')">
-            <div class="drop-icon" style="font-size:16px">📋</div>
-            <div class="drop-text" style="font-size:11px"><strong>Upload T&Cs</strong><br><span style="color:var(--text3);font-weight:400">PDF, image or Word doc</span></div>
-          </div>
-          <div class="file-pills" id="tcs-pills-${v.id}"></div>
-        </div>
-      </div>
-      <div class="vendor-notes-label">Notes about this vendor</div>
-      <textarea class="vendor-notes-input" placeholder="e.g. already onboarded, preferred supplier, used before…"
-        oninput="updateVendorNotes('${v.id}', this.value)">${v.notes}</textarea>
-    `;
-    container.appendChild(block);
-    // re-render file pills
-    renderPills('quote-pills-' + v.id, v.quoteFiles, 'quote', v.id);
-    renderPills('tcs-pills-' + v.id, v.tcsFiles, 'tcs', v.id);
+  // Refresh pills for the 3 static columns
+  ['v1','v2','v3'].forEach(id => {
+    const v = vendors.find(x => x.id === id);
+    if (v) {
+      renderPills('quote-pills-' + id, v.quoteFiles, 'quote', id);
+      renderPills('tcs-pills-'  + id, v.tcsFiles,  'tcs',  id);
+    }
   });
-  document.getElementById('add-vendor-btn').style.display = vendors.length >= 6 ? 'none' : 'flex';
+  // Render extra vendors (4th+)
+  const extra = document.getElementById('extra-vendors-container');
+  if (extra) {
+    extra.innerHTML = '';
+    vendors.slice(3).forEach((v, idx) => {
+      const badgeLetter = String.fromCharCode(68 + idx);
+      const block = document.createElement('div');
+      block.className = 'vendor-block';
+      block.id = 'block-' + v.id;
+      block.innerHTML = `
+        <div class="vendor-block-header">
+          <span class="ugrid-badge" style="margin-right:8px;flex-shrink:0">${badgeLetter}</span>
+          <input class="vendor-name-input" value="${v.name}" placeholder="Vendor name"
+            oninput="updateVendorName('${v.id}', this.value)">
+          <button onclick="removeVendor('${v.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;margin-left:8px">&#215;</button>
+        </div>
+        <div class="vendor-files-row">
+          <div>
+            <div class="vendor-notes-label">Quote PDFs (upload multiple if needed)</div>
+            <div class="drop-zone" style="padding:14px"
+              ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
+              ondrop="handleDrop(event,'quote','${v.id}')">
+              <input type="file" accept="${ACCEPTED_TYPES}" multiple onchange="handleFileInput(event,'quote','${v.id}')">
+              <div class="drop-icon" style="font-size:16px">&#128196;</div>
+              <div class="drop-text" style="font-size:11px"><strong>Upload quotes</strong><br><span style="color:var(--text3);font-weight:400">PDF, image or Word doc</span></div>
+            </div>
+            <div class="file-pills" id="quote-pills-${v.id}"></div>
+          </div>
+          <div>
+            <div class="vendor-notes-label">T&amp;Cs <span style="font-weight:400;color:var(--text3)">(optional)</span></div>
+            <div class="drop-zone" style="padding:14px"
+              ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
+              ondrop="handleDrop(event,'tcs','${v.id}')">
+              <input type="file" accept="${ACCEPTED_TYPES}" onchange="handleFileInput(event,'tcs','${v.id}')">
+              <div class="drop-icon" style="font-size:16px">&#128203;</div>
+              <div class="drop-text" style="font-size:11px"><strong>Upload T&amp;Cs</strong><br><span style="color:var(--text3);font-weight:400">PDF, image or Word doc</span></div>
+            </div>
+            <div class="file-pills" id="tcs-pills-${v.id}"></div>
+          </div>
+        </div>
+        <div class="vendor-notes-label">Notes about this vendor</div>
+        <textarea class="vendor-notes-input" placeholder="e.g. already onboarded, preferred supplier..."
+          oninput="updateVendorNotes('${v.id}', this.value)">${v.notes}</textarea>
+      `;
+      extra.appendChild(block);
+      renderPills('quote-pills-' + v.id, v.quoteFiles, 'quote', v.id);
+      renderPills('tcs-pills-'  + v.id, v.tcsFiles,  'tcs',  v.id);
+    });
+  }
+  const addBtn = document.getElementById('add-vendor-btn');
+  if (addBtn) addBtn.style.display = vendors.length >= 6 ? 'none' : 'flex';
+  updateFileCount();
 }
 
+function updateFileCount() {
+  let total = scopeFiles.length;
+  vendors.forEach(v => { total += v.quoteFiles.length + v.tcsFiles.length; });
+  const label = document.getElementById('file-count-label');
+  if (label) label.textContent = total + ' file(s) selected';
+}
 function updateVendorName(id, name) {
   const v = vendors.find(x => x.id === id);
   if (v) v.name = name;
@@ -1082,6 +1216,7 @@ function addFiles(files, type, vendorId) {
   if (type === 'scope') {
     scopeFiles = files.slice(0, 1);
     renderPills('scope-pills', scopeFiles, 'scope', null);
+    updateFileCount();
     return;
   }
   const v = vendors.find(x => x.id === vendorId);
@@ -1093,12 +1228,14 @@ function addFiles(files, type, vendorId) {
     v.tcsFiles = [...v.tcsFiles, ...files].slice(0, 1);
     renderPills('tcs-pills-' + vendorId, v.tcsFiles, 'tcs', vendorId);
   }
+  updateFileCount();
 }
 
 function removeFile(type, vendorId, index) {
   if (type === 'scope') {
     scopeFiles.splice(index, 1);
     renderPills('scope-pills', scopeFiles, 'scope', null);
+    updateFileCount();
     return;
   }
   const v = vendors.find(x => x.id === vendorId);
@@ -1110,6 +1247,7 @@ function removeFile(type, vendorId, index) {
     v.tcsFiles.splice(index, 1);
     renderPills('tcs-pills-' + vendorId, v.tcsFiles, 'tcs', vendorId);
   }
+  updateFileCount();
 }
 
 function fileIcon(file) {
@@ -2026,12 +2164,26 @@ function hideError() {
 
 function newAnalysis() {
   scopeFiles = [];
-  vendors = [];
-  vendorCount = 0;
-  document.getElementById('scope-pills').innerHTML = '';
-  addVendor();
-  addVendor();
-  addVendor();
+  vendors = [
+    { id: 'v1', name: 'Vendor 1', quoteFiles: [], tcsFiles: [], notes: '' },
+    { id: 'v2', name: 'Vendor 2', quoteFiles: [], tcsFiles: [], notes: '' },
+    { id: 'v3', name: 'Vendor 3', quoteFiles: [], tcsFiles: [], notes: '' },
+  ];
+  vendorCount = 3;
+  renderPills('scope-pills', [], 'scope', null);
+  ['v1','v2','v3'].forEach((id, i) => {
+    renderPills('quote-pills-' + id, [], 'quote', id);
+    renderPills('tcs-pills-'  + id, [], 'tcs',  id);
+    const nameEl = document.querySelector('.ugrid-vendor-name[oninput="updateVendorName(\'' + id + '\',this.value)"]');
+    if (nameEl) nameEl.value = 'Vendor ' + (i + 1);
+    const notesEl = document.querySelector('.ugrid-notes[oninput="updateVendorNotes(\'' + id + '\',this.value)"]');
+    if (notesEl) notesEl.value = '';
+  });
+  const extra = document.getElementById('extra-vendors-container');
+  if (extra) extra.innerHTML = '';
+  const addBtn = document.getElementById('add-vendor-btn');
+  if (addBtn) addBtn.style.display = 'flex';
+  updateFileCount();
   showView('home');
 }
 
