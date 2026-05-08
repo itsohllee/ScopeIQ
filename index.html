@@ -1569,8 +1569,8 @@ function addRecheckFiles(e, vendorId, isDrop) {
 }
 
 // ── Read-more toggle for recommendation reasoning ────────────────────────────────────────────
-function toggleRecText(btn, id) {
-  const el = document.getElementById(id);
+function toggleRecText(btn) {
+  const el = btn.previousElementSibling;
   if (!el) return;
   const expanded = el.classList.toggle('expanded');
   btn.textContent = expanded ? 'Show less' : 'Read more';
@@ -1789,7 +1789,7 @@ function renderResults(analysis) {
   // Determine lowest-price vendor (best-effort numeric parse)
   let lowestVendor = null;
   let lowestVal = Infinity;
-  vendorSummaries.forEach((v, i) => {
+  vendorSummaries.forEach(v => {
     const num = parseFloat((v.totalPrice || '').replace(/[^0-9.]/g, ''));
     if (!isNaN(num) && num < lowestVal) { lowestVal = num; lowestVendor = v.name; }
   });
@@ -1859,7 +1859,7 @@ function renderResults(analysis) {
           return `<div class="rpt-vendor-history"><span class="rpt-vh-pill">📋 ${vh.count} past${avgStr}</span>${recStr}</div>${woStr}`;
         })()}
 
-        ${isRec ? `<div class="rpt-rec-box"><div class="rpt-rec-label">★ Recommended</div><div class="rpt-rec-text" id="rec-text-${i}">${esc(analysis.recommendationReason || '')}</div><button class="rpt-rec-more" onclick="toggleRecText(this,'rec-text-'+i)">Read more</button></div>` : ''}
+        ${isRec ? `<div class="rpt-rec-box"><div class="rpt-rec-label">★ Recommended</div><div class="rpt-rec-text">${esc(analysis.recommendationReason || '')}</div><button class="rpt-rec-more" onclick="toggleRecText(this)">Read more</button></div>` : ''}
       </th>`;
     });
     html += `</tr></thead><tbody>`;
